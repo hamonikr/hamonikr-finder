@@ -16,11 +16,9 @@
 ```
 
 ## Read More
-```
  * 사용시 발생하는 버그 또는 질문은 "[이슈](https://github.com/hamonikr/hamonikr-finder/issues)" 게시판을 이용해주세요.
- ```
+
  
 ### License
-```
 GPL-3.0
-```
+
