@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hamonikr</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="../build/icons/phreshistant-icon.png.ico" />
+    <link rel="stylesheet" href="assets/font-awesome-4.7/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="assets/css/w3.css" />
+    <!-- link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css" -->
+    <link rel="stylesheet" href="assets/css/chrome.custom.scrollbar.css" /> 
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script> 
+    <link id="themecss" rel="stylesheet" href="assets/css/themes/theme-light.css" />
+  </head>
+  <body style="background-color: #49464e;">
+
+		<div class="w3-top w3-cear" style="background-color: #49464e;">
+       <button class="btn btn-primary btn-block" id="browse-directory">폴더추가</button>
+			 <div id="myDiv" placeholder="set folder location"></div>
+
+
+			 <div id="pre_set" style="display:none;" last-id="0">
+			    <div style="margin:2px; height:40px; border:3px solid #2C3E50">
+			         <div class="delete_box w3-right">
+			            <button onclick="delete_info(this)" style="font-size:70%;padding: 4px;margin: 3px;">삭제</button>
+			        </div>
+			     <div class="selection_content" style="padding: 6px;">
+			      </div>
+			     </div>
+			</div>
+			 
+			<div id="field" style="max-height:770px; overflow:auto;">
+			</div>
+
+
+
+
+		</div>
+
+		<div id="userdirset" class="w3-modal">
+      <!-- <div class="w3-modal-content"> -->
+      <div class="w3-modal-content w3-animate-top" style="max-height:90%;overflow-y:auto;">
+        <div class="w3-container">
+          <span onclick="document.getElementById('userdirset').style.display='none'" class="w3-closebtn">&times;</span>
+          <button class="btn btn-primary btn-block" id="browse-directory">browse</button>
+          <textarea class='form-control' id='location' name='location' placeholder="set folder location" readonly></textarea>
+        </div>
+      </div>
+    </div>
+
+
+    <script src="assets/js/w3.js"></script>
+		<script>
+      require('./renderer.js')
+    </script>
+
+
+<script type="text/javascript">
+/*
+function add_info(x) {
+    // 원본 찾아서 pre_set으로 저장.
+    var pre_set = document.getElementById('pre_set');
+    // last-id 속성에서 필드ID르 쓸값 찾고
+    var fieldid = pre_set.getAttribute('last-id');
+    // 다음에 필드ID가 중복되지 않도록 1 증가.
+    pre_set.setAttribute('last-id', fieldid + 1 );
+ 
+    // 복사할 div 엘리먼트 생성
+    var div = document.createElement('div');
+    // 내용 복사
+    div.innerHTML = pre_set.innerHTML;
+    // 복사된 엘리먼트의 id를 'field-data-XX'가 되도록 지정.
+    div.id = 'field-data-' + fieldid;
+    // selection_content 영역에 내용 변경.
+    var temp = div.getElementsByClassName('selection_content')[0];
+    temp.innerText = x;
+    // delete_box에 삭제할 fieldid 정보 건네기
+    var deleteBox = div.getElementsByClassName('delete_box')[0];
+    // target이라는 속성에 삭제할 div id 저장
+    deleteBox.setAttribute('target',div.id);
+    // #field에 복사한 div 추가.
+    document.getElementById('field').appendChild(div);
+}
+*/ 
+function delete_info(obj) {
+   // 삭제할 ID 정보 찾기
+   var target = obj.parentNode.getAttribute('target');
+   // 삭제할 element 찾기
+   var field = document.getElementById(target);
+   // #field 에서 삭제할 element 제거하기
+    document.getElementById('field').removeChild(field);
+}
+
+</script>
+
+
+
+	</body>
+</html>	

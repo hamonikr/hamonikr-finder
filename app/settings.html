@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<title>Hamonikr</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="assets/font-awesome-4.7/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="assets/css/w3.css" />
+    <link rel="stylesheet" href="assets/css/chrome.custom.scrollbar.css" />
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+
+<body>
+
+<div class="w3-card-4 w3-margin" style="width:92%">
+
+<header class="w3-container w3-light-grey">
+  <h5>설정</h5>
+</header>
+
+<div class="w3-container">
+  <p></p>
+  <hr>
+  <!-- <p>CEO at Mighty Schools. Marketing and Advertising. Seeking a new job and new opportunities.</p><br> -->
+
+	<!-- button class="btn btn-primary btn-block" id="browse-directory">폴더추가</button -->
+  <div id="myDiv" placeholder="set folder location"></div>
+
+
+  <div id="pre_set" style="display:none;font-size: 13px;" last-id="0">
+	  <div style="margin:2px; height:40px; border: #2C3E50;">
+  	  <div class="delete_box w3-right">
+    	  <button onclick="delete_info(this)" style="font-size:70%;padding: 4px;margin: 3px;">삭제</button>
+      </div>
+    	<div class="selection_content" style="overflow: auto;font-size: 13px;"></div>
+		</div>
+	</div>
+
+  <div id="field" style="max-height:770px; overflow:auto;"></div>
+
+
+</div>
+<p></p>
+<hr>
+<button id="browse-directory" class="w3-btn-block w3-dark-grey">+ Add Folder</button>
+<button id="browse-directory-save" class="w3-btn-block w3-dark-grey" onclick="dirSettingsSave();">∴ Save  </button>
+
+
+</div>
+
+
+<script src="assets/js/w3.js"></script>
+<script>require('./renderer.js')</script>
+
+<script type="text/javascript">
+function delete_info(obj) {
+   var target = obj.parentNode.getAttribute('target');
+   var field = document.getElementById(target);
+    document.getElementById('field').removeChild(field);
+}
+
+function dirSettingsSave(){
+	var tempDirAddress = "";
+	for( var i=0; i<$("#field").children().length; i++){
+		console.log(i +"==="+ $("#field-data-"+i).find(".selection_content").text() );
+		tempDirAddress += $("#field-data-"+i).find(".selection_content").text() +"\n";
+	}
+
+	console.log("path==="+ tempDirAddress);
+
+	const {ipcRenderer} = require('electron');
+  ipcRenderer.send('save-dir-path', tempDirAddress);
+}
+</script>
+
+
+</body>
+</html> 
+
