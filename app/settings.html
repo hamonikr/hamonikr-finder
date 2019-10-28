@@ -24,7 +24,7 @@
   <!-- <p>CEO at Mighty Schools. Marketing and Advertising. Seeking a new job and new opportunities.</p><br> -->
 
 	<!-- button class="btn btn-primary btn-block" id="browse-directory">폴더추가</button -->
-  <div id="myDiv" placeholder="set folder location"></div>
+  <div id="myDiv" placeholder="set folGder location"></div>
 
 
   <div id="pre_set" style="display:none;font-size: 13px;" last-id="0">
@@ -49,10 +49,44 @@
 </div>
 
 
-<script src="assets/js/w3.js"></script>
-<script>require('./renderer.js')</script>
+
 
 <script type="text/javascript">
+const {ipcRenderer} = require('electron');
+ipcRenderer.send('openConfigFile', () => { 
+	console.log("Event sent."); 
+}) 
+
+
+ipcRenderer.on('settingData_arr', (event, data) => {
+  console.log("-=====> "+ data );
+  var settingData_arr = data.split('\n');
+
+  if( settingData_arr.length != 0 ){
+    for(var i=0; i<settingData_arr.length -1 ;++i){
+      console.log(i+'=====' + settingData_arr[i]);
+      addconfige_info(settingData_arr[i]);
+    }
+  }
+	
+})
+
+function addconfige_info(x) {
+    var pre_set = document.getElementById('pre_set');
+    var fieldid = pre_set.getAttribute('last-id');
+    pre_set.setAttribute('last-id',Number(fieldid) + 1 );
+
+    // 복사할 div 엘리먼트 생성
+    var div = document.createElement('div');
+    div.innerHTML = pre_set.innerHTML;
+    div.id = 'field-data-' + fieldid;
+    var temp = div.getElementsByClassName('selection_content')[0];
+    temp.innerText = x ;
+    var deleteBox = div.getElementsByClassName('delete_box')[0];
+    deleteBox.setAttribute('target',div.id);
+    document.getElementById('field').appendChild(div);
+}
+
 function delete_info(obj) {
    var target = obj.parentNode.getAttribute('target');
    var field = document.getElementById(target);
@@ -60,11 +94,13 @@ function delete_info(obj) {
 }
 
 function dirSettingsSave(){
-	var tempDirAddress = "";
-	for( var i=0; i<$("#field").children().length; i++){
-		console.log(i +"==="+ $("#field-data-"+i).find(".selection_content").text() );
-		tempDirAddress += $("#field-data-"+i).find(".selection_content").text() +"\n";
-	}
+  var tempDirAddress = "";
+  if ( $("#field").children().length != 0 ){
+    for( var i=0; i<$("#field").children().length; i++){
+      console.log(i +"==="+ $("#field-data-"+i).find(".selection_content").text() );
+      tempDirAddress += $("#field-data-"+i).find(".selection_content").text() +"\n";
+    }
+  }
 
 	console.log("path==="+ tempDirAddress);
 
@@ -72,7 +108,8 @@ function dirSettingsSave(){
   ipcRenderer.send('save-dir-path', tempDirAddress);
 }
 </script>
-
+<script src="assets/js/w3.js"></script>
+<script>require('./renderer.js')</script>
 
 </body>
 </html> 

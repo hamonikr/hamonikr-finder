@@ -1,13 +1,9 @@
 {
-  "name": "phreshistant",
+  "name": "hamonikr-finder",
   "version": "1.1.2",
-  "productName": "Phreshistant",
+  "productName": "hamonikr-finer",
   "description": "Simple todo and project manage application.",
-  "author": "Phresh",
-  "copyright": "© 2018, Krisztián Kis - Phresh-IT",
-  "homepage": "https://phresh-it.hu/apps/phreshistant/",
-  "repository": "https://github.com/Phreshhh/Phreshistant/",
-  "license": "MIT",
+  "author": "ivs",
   "keywords": [
     "Phresh",
     "Electron",
@@ -21,22 +17,25 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "pack-win32": "electron-packager . Phreshistant --platform=win32 --arch=x32 --asar --out dist --overwrite --icon=build/icons/phreshistant-icon.png.ico",
-    "pack-win": "electron-packager . Phreshistant --platform=win32 --arch=x64 --asar --out dist --overwrite --icon=build/icons/phreshistant-icon.png.ico",
-    "pack-lin": "electron-packager . Phreshistant --platform=linux --arch=x64 --asar --out dist --overwrite ---icon=build/icons/phreshistant-icon.png --prune=true",
-    "pack-mac": "electron-packager . Phreshistant --platform=darwin --arch=x64 --asar --out dist  --overwrite --icon=build/icons/phreshistant-icon.png.icns --prune=true",
     "pack": "build --dir",
     "dist": "build"
   },
   "dependencies": {
     "archiver": "3.0.0",
     "auto-launch": "5.0.5",
+    "axios": "^0.19.0",
+    "charset": "^1.0.1",
     "electron-store": "2.0.0",
     "electron-window-state": "5.0.0",
     "fs-extra": "7.0.0",
+    "iconv-lite": "^0.5.0",
+    "jquery": "^3.4.1",
+    "koa": "^2.10.0",
+    "koa-router": "^7.4.0",
     "markdown-it": "8.4.2",
     "nedb": "1.8.0",
-    "jquery": "^3.4.1",
+    "request": "^2.88.0",
+    "unirest": "^0.6.0",
     "unzipper": "0.9.3"
   },
   "devDependencies": {
@@ -58,27 +57,6 @@
       "description": "Electron based project manager.",
       "target": [
         "AppImage"
-      ]
-    },
-    "win": {
-      "icon": "build/icons/phreshistant-icon.png.ico",
-      "publisherName": "Krisztian Kis",
-      "target": [
-        "nsis"
-      ]
-    },
-    "nsis": {
-      "oneClick": true,
-      "perMachine": true,
-      "installerIcon": "build/icons/phreshistant-icon.png.ico",
-      "createDesktopShortcut": true
-    },
-    "mac": {
-      "icon": "build/icons/phreshistant-icon.png.icns",
-      "category": "public.app-category.productivity",
-      "target": [
-        "zip",
-        "dmg"
       ]
     }
   }

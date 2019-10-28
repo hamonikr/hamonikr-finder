@@ -1,28 +1,61 @@
 const electron = require('electron');
+const {Tray, Menu} = require('electron');
+const {shell} = require('electron');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const windowStateKeeper = require('electron-window-state');
 const { globalShortcut } = require("electron");
 const fs = require('fs');
 
-let mainWindow;
+
+let mainWindow, settingWindow;
 
 function createWindow () {
 
-  let mainWindowState = windowStateKeeper({
-    defaultWidth: 400,
-    defaultHeight:70 
-  });
+	let mainWindowState = windowStateKeeper({
+		defaultWidth: 450,
+		defaultHeight: 60
+	});
 
-  mainWindow = new BrowserWindow({
-	  backgroundColor: '#49464e',
+	//	lending browser 
+	settingWindow = new BrowserWindow({
+		show: false,
+		backgroundColor: '#49464e',
 		skipTaskbar: false,
 	//	resizable: false,
-    'x': mainWindowState.x,
-    'y': mainWindowState.y,
-    'width': mainWindowState.width,
-    'height': mainWindowState.height
-  });
+		'x': mainWindowState.x,
+		'y': mainWindowState.y,
+		'width': 450,
+		'height': 250,
+		 frame:false,
+		 alwaysOnTop: true,
+		 resizable: false,
+		  transparent: true,
+
+  	});
+
+	settingWindow.setMenu(null);
+	settingWindow.setMenuBarVisibility(false);
+	settingWindow.loadURL('file://' + __dirname + '/app/settings.html');
+	
+
+	
+
+	mainWindow = new BrowserWindow({
+		backgroundColor: '#49464e',
+		skipTaskbar: false,
+	//	resizable: false,
+		'x': mainWindowState.x,
+		'y': mainWindowState.y,
+		'width': mainWindowState.width,
+		'height': mainWindowState.height,
+		 frame:false,
+		 alwaysOnTop: true,
+		 resizable: false,
+		  transparent: true,
+		//  titleBarStyle: 'hidden'
+		// titleBarStyle: 'hiddenInset' 
+	});
 
 	console.log("--"+ mainWindowState.width);
 	console.log("--"+ mainWindowState.height);
@@ -30,35 +63,90 @@ function createWindow () {
 	console.log("--"+ mainWindowState.y);
 
 
-  mainWindowState.manage(mainWindow);
+  	mainWindowState.manage(mainWindow);
 
-  mainWindow.loadURL('file://' + __dirname + '/app/index.html');
+  	mainWindow.loadURL('file://' + __dirname + '/app/index.html');
 
-  mainWindow.setMenu(null);
+  	mainWindow.setMenu(null);
 	mainWindow.setMenuBarVisibility(false);	
   // Open the DevTools.
-  mainWindow.webContents.openDevTools(); 
+  	mainWindow.webContents.openDevTools(); 
 
-  mainWindow.on('closed', function () {
-    mainWindowState.saveState(mainWindow);
-    mainWindow = null;
-  });
+	mainWindow.on('closed', function () {
+		mainWindowState.saveState(mainWindow);
+		mainWindow = null;
+	});
 
 }
 
-//app.on('ready', createWindow);
 
+
+const toggleWindow = () => {
+    mainWindow.isVisible() ? mainWindow.hide() : showWindow();
+}
+const showWindow = () => {
+    const position = getWindowPosition();
+    mainWindow.setPosition(position.x, position.y, false);
+    mainWindow.show();
+}
+const getWindowPosition = () => {
+    const windowBounds = mainWindow.getBounds();
+    const trayBounds = trayIcon.getBounds();
+    
+    // Center window horizontally below the tray icon
+    const x = Math.round(trayBounds.x + (trayBounds.width / 2) - (windowBounds.width / 2))
+    // Position window 4 pixels vertically below the tray icon
+    const y = Math.round(trayBounds.y + trayBounds.height + 4)
+    return {x: x, y: y}
+}
+const createTray = () => {
+	trayIcon  = new Tray(__dirname + '/build/icons/icon16.png');
+	//tray.setTitle('hello world');
+	const trayMenuTemplate = [
+		{
+		   label: 'Hamonikr-finder',
+		   //enabled: false
+			click: function (){
+				toggleWindow();
+		   }
+		},
+		
+		{
+		   label: 'Settings',
+		   click: function () {
+			  console.log("Clicked on settings");
+			  settingWindow.show();
+			  console.log("Clicked on settings222");
+		   }
+		},
+		
+		{
+		   label: 'Help',
+		   click: function () {
+			  console.log("Clicked on Help")
+		   }
+		},
+		{ label: 'Quit', click: () => { app.quit(); } }
+	 ]
+	 
+	 let trayMenu = Menu.buildFromTemplate(trayMenuTemplate)
+	 trayIcon.setContextMenu(trayMenu)
+}
+// let trayIcon  = null;
 app.on('ready', () => {
+	createTray();
+	  
 	globalShortcut.register('alt+f4', function() {
 		console.log('You fired ctrl+alt+j !!!');
 	});
 	createWindow();
-  mainWindow.setSize(400,70);
+  	mainWindow.setSize(450,60);
 });
 
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
-	   mainWindow.setSize(400,70);
+	   mainWindow.setSize(450,60);
+	 //  mainWindow.hide();
     app.quit();
   }
 });
@@ -71,39 +159,106 @@ app.on('activate', function () {
 });
 
 
+
 const {ipcMain} = require('electron')
 ipcMain.on('resize-me-please', (event, arg) => {
 	if(arg == "initLayer"){
-	  mainWindow.setSize(400,70);
+		mainWindow.setResizable(true);
+		mainWindow.setSize(450,60);
 	}else if( arg == "viewLayer"){
-  	mainWindow.setSize(800,800);
+  		mainWindow.setSize(625, 500);
+//		esRequest();
 	}else{
 		createWindow();
-		mainWindow.setSize(400,70);
+		mainWindow.setSize(450,60);
 	}		
 })
 
+ipcMain.on('openFile', (event, path) => {
+  console.log("main.js=-====" + path);
+//  shell.showItemInFolder(path);
+  shell.openItem(path);
 
-ipcMain.on('save-dir-path', (event, arg) => {
-	console.log("save-dir-path----"+ arg);		
-	FnChk_settingsFile();
+});
 
-//console.log("==="+ process.cwd() +"===" + process.env.PWD);
 
-//if (!fs.existsSync(process.cwd() + '/finder-config')) fs.mkdir(process.cwd() + '/finder-config');
+ipcMain.on('openConfigFile', (event, path) => { 
+	var osType = require('os');
+  	var filepath  = osType.homedir() + '/.config/hamonikr_finder/finder_config';
 
-	var fileDir = process.cwd() + "/finder-config/finder-env";
-	fs.writeFile(fileDir, arg, (err) => {
-		if(err){
-			console.log("//== save-dir-path() error  "+ err.message)
+	fs.readFile(filepath, 'utf-8', (err, data) => { 
+		if(err){ 
+			console.log("An error ocurred reading the file :" + err.message);
+			return 
+		}else{
+			console.log("data==="+ data);
+			
+			var settingData_arr = data.split('\n');
+			// for(var i=0; i<settingData_arr.length ;++i){
+			// 	console.log(i+'=====' + settingData_arr[i]);
+			// }
+			// console.log("settingData_arr==="+ settingData_arr);
+			event.sender.send('settingData_arr', data);
+
+			console.log("uuid info success");
 		}
 	});
+});
+
+ipcMain.on('save-dir-path', (event, arg) => {
+	
+	console.log("save-dir-path----"+ arg);		
+	FnChk_settingsFile();
+	console.log("1111");
+
+	setTimeout(create_settingFile, 600, arg);
+	console.log("22222");
+	setTimeout(watcherCall, 600, '');
+	console.log("3333");
+
 })
+
+
+function watcherCall(){
+
+	const request=require('request');
+	request('http://127.0.0.1:3001/watcher',function(error, response, body){
+  	if(!error&&response.statusCode==200) {
+    	console.log(body);
+   	}else{
+    	console.log("error----" + error);
+    }
+	});
+
+	//var unirest = require('unirest');
+
+	//unirest.post('http://127.0.0.1:3001/watcher')
+	//	.header('Accept', 'application/json')
+////		.send({ "id": searchTextStr })
+	//	.send()
+	//	.end(function (response) {
+	//	console.log(response.body);
+	//});
+}
+
+function create_settingFile(arg){
+
+  var osType = require('os');
+  var fileDir  = osType.homedir() + '/.config/hamonikr_finder/finder_config';
+
+	console.log("====filepath==="+ fileDir);
+  fs.writeFile(fileDir, arg, (err) => {
+    if(err){
+      console.log("//== save-dir-path() error  "+ err.message);
+    }
+  });
+}
 
 function FnChk_settingsFile(){
 
-
-	var dirpath = process.cwd() + '/finder-config';
+	var osType = require('os');
+	var dirpath = osType.homedir() + '/.config/hamonikr_finder/';
+	
 	try{
 		 fs.lstatSync(dirpath).isDirectory();
 	}catch(e){
@@ -123,6 +278,5 @@ function FnChk_settingsFile(){
 	   }
 	}
 }
-
 
 

@@ -4,175 +4,101 @@
     <title>Hamonikr</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" href="../build/icons/phreshistant-icon.png.ico" />
     <link rel="stylesheet" href="assets/font-awesome-4.7/css/font-awesome.min.css" />
     <link rel="stylesheet" href="assets/css/w3.css" />
-		<!-- link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css" -->
+	<!--link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"/-->
     <link rel="stylesheet" href="assets/css/chrome.custom.scrollbar.css" /> 
     <link rel="stylesheet" href="assets/css/style.css" />
-		<script src="../node_modules/jquery/dist/jquery.min.js"></script>
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script> 
-		<link id="themecss" rel="stylesheet" href="assets/css/themes/theme-light.css" />
+	<script src="../node_modules/jquery/dist/jquery.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script> 
+	<link id="themecss" rel="stylesheet" href="assets/css/themes/theme-light.css" />
+	<style>
+	.dragLayer {
+		-ms-overflow-style: scrollbar;
+		-webkit-app-region:drag;
+	}
+	.noneDragLayer {
+		-webkit-app-region: no-drag;
+	}
+	body{
+		line-height: 1;
+	}
+	.title-bar {
+		-webkit-app-region: drag;
+		height: 40px;
+		text-align: center;
+		line-height: 40px;
+		vertical-align: middle;
+		background-color: #03a9f4;
+		padding: none;
+		margin: 0px;
+	}
+	</style>
   </head>
   <body>
 
-
     <!-- Navbar -->
-    <div class="w3-top w3-cear" style="background-color: #49464e;">
-      <div id="mainNav" class="w3-bar w3-theme-d2 w3-left-align">
-
-				<div class="w3-dropdown-hover w3-dropdown-app-hover" style="background-color: #49464e;">
-					<a id="search" href="#" class="w3-bar-item w3-button w3-button-app  w3-left" onclick="showSearchBlock();"><i class="fa fa-search"></i></a>
-
-        	<div id="searchBlock" class="w3-bar-item w3-button w3-button-transparent  w3-right" >
-        	  <input id="searchInput" class="w3-input w3-animate-input w3-round"  type="text" onkeyup="filterTodos(this.value);" placeholder="Search">
-        	  <!-- input id="searchInput" class="w3-input w3-animate-input w3-round" style="width:50%;margin:0 auto;padding:0 5px;box-shadow:5px 5px 50px;" type="text" onkeyup="filterTodos(this.value);" placeholder="Search" -->
-        	  <!-- a href="#" class="w3-button w3-button-transparent" onclick="hideSearchBlock();" style="position:absolute;top:0;right:60px;">&times;</a -->
-        	</div>
+	<div class="" style="background-color: #49464e;">
+		<div class="w3-bar w3-border w3-light-grey dragLayer" >
+			<div class="w3-bar-item " style="padding: 0px 0px">London</div>
+			<div class="w3-bar-item " style="padding: 0px 0px">Paris</div>
+			<div class="w3-bar-item w3-right noneDragLayer" id="closeBtn" style="padding: 0px 0px">close</div>
+		</div>	
+      	<div id="mainNav" class="w3-bar w3-theme-d2 w3-left-align dragLayer">
+			<div class="w3-dropdown-hover w3-dropdown-app-hover noneDragLayer" style="background-color: #49464e;">
+				<div id="searchBlock" class="w3-bar-item w3-button w3-button-transparent w3-left" >
+				<input id="searchInput" class="w3-input w3-animate-input w3-round"  type="text" placeholder="Search" style="padding:0px;">
 				</div>
+				<a id="search" href="#" class="w3-bar-item w3-button w3-button-app w3-right" ><i class="fa fa-search"></i></a>
+			</div>
 
-				<div class="w3-dropdown-hover w3-dropdown-app-hover ">
-					<button onclick="myFunction();" class="w3-btn">dir setting</button>
-				</div>
-				<div class="w3-dropdown-hover w3-dropdown-app-hover ">
-					<a href="#" class="w3-bar-item w3-button w3-button-app" onclick="test();">A</a>
-          <a href="index.html" class="w3-bar-item w3-button w3-button-app">Reload</a>
-					<button onclick="document.getElementById('userdirset').style.display='block'" class="w3-btn">dir setting22</button>
-        </div>
-				
-				<!--
-        <div class="w3-dropdown-hover w3-dropdown-app-hover ">
-          <button class="w3-button w3-button-app">Settings <i class="fa fa-caret-down"></i></button>
-          <div class="w3-dropdown-content w3-animate-opacity w3-card-4 w3-bar-block">
-            <a href="#" class="w3-bar-item w3-button w3-button-app" onclick="autostartApp();">Auto start <i id="autostartcheck" class="fa fa-check"></i></a>
-            <a href="index.html" class="w3-bar-item w3-button w3-button-app">Reload app</a>
-						<i class="fa fa-plus w3-large clickable" onclick="showModal('iuserdirset', 'projectNameInput')">test</i>
-
-					<button onclick="document.getElementById('userdirset').style.display='block'" class="w3-btn">dir setting</button>
-
-          </div>
-        </div>
-				-->
-
-				<!-- settings
-        <a href="#" class="w3-bar-item w3-button w3-button-transparent w3-round " style="cursor:default;">&nbsp;</a>
-	
-	   		<a id="demo" onclick="myFunction()"><button  class="btn btn-large btn-default moreInfo-Link-button">More Info</button></a> 
-				
-				<a href="#" class="w3-bar-item w3-button w3-button-app" onclick="test();">A</a>
-				-->
-
-      </div>
-
-    </div>
-
-    <!-- Modals -->
-
-		<div id="userdirset" class="w3-modal">
-		  <!-- <div class="w3-modal-content"> -->
-			<div class="w3-modal-content w3-animate-top" style="max-height:90%;overflow-y:auto;">
-		    <div class="w3-container">
-		      <span onclick="document.getElementById('userdirset').style.display='none'" class="w3-closebtn">&times;</span>
-					<button class="btn btn-primary btn-block" id="browse-directory">browse</button>
-          <textarea class='form-control' id='location' name='location' placeholder="set folder location" readonly></textarea>
+			<div class="w3-dropdown-hover w3-dropdown-app-hover noneDragLayer">
+				<button onclick="myFunction();" class="w3-btn">설정</button>
+			</div>
+			<div class="w3-dropdown-hover w3-dropdown-app-hover noneDragLayer">
+				<a href="index.html" class="w3-bar-item w3-button w3-button-app">Re</a>
 		    </div>
-		  </div>
-		</div>
+      </div>
+    </div>
+		
+	<div class="w3-row" id="esSearchResult" style="background-color: #49464e;">
+		<div id="esSearchResultTbody"></div>
+	</div>
+
+	<!-- Modals -->
+    
+<script>
+const electron = require('electron')
+const path = require('path')
+const remote = electron.remote
+const closeBtn = document.getElementById('closeBtn')
+
+closeBtn.addEventListener('click', function (event) {
+    var window = remote.getCurrentWindow();
+    window.close();
+})
 
 
-    <script src="assets/js/w3.js"></script>
-    <script>
+    let autosaveInterval = null;
+    let countUpIntervals = [];
 
-      let autosaveInterval = null;
-      let countUpIntervals = [];
-
-
-      function showModal(modalID, elementIDFocus) {
+    function showModal(modalID, elementIDFocus) {
         w3.addStyle('#' + modalID, 'display', 'block');
         setTimeout( () => {
           document.getElementById(elementIDFocus).focus();
         }, 600)
-
-      }
-
-
-/*
-      let modals = document.getElementsByClassName('w3-modal');
-      // When the user clicks anywhere outside of the modal, close it
-      window.onclick = function(event) {
-        Array.from(modals).forEach(function(modal) {
-          if (event.target == modal) {
-
-            if(autosaveInterval !== null) {
-              clearInterval(autosaveInterval);
-              autosaveInterval = null;
-            }
-            modal.style.display = "none";
-
-          }
-        });
-      }
-  */    
-			changeTheme('ubuntu-glass');
-
-      function changeTheme(currAppTheme) {
-
-        document.getElementById('themecss').href= 'assets/css/themes/theme-' + currAppTheme + '.css';
-
-      }
+    }
 
 
-      /* search todos */
-
-      function showSearchBlock() {
-
-        w3.addStyle('#searchBlock', 'visibility', 'visible');
-        setTimeout( () => {
-          document.getElementById('searchInput').focus();
-        }, 200);
-        w3.show('#TodoSearchedButton');
-        listTodosByState('TodoSearched');
-
-      }
-
-      function showSearchBlockCN() {
-
-        w3.addStyle('#searchBlock-cn', 'visibility', 'visible');
-        setTimeout( () => {
-          document.getElementById('searchInput-cn').focus();
-        }, 200);
-        w3.show('#TodoSearchedButton');
-        listTodosByState('TodoSearched');
-
-      }
-
-      function hideSearchBlock() {
-
-        w3.addStyle('#searchBlock', 'visibility', 'hidden');
-        w3.hide('#TodoSearchedButton');
-        document.getElementById('searchInput').value = '';
-        document.getElementById('todoSearchedList').innerHTML = '';
-        listTodosByState('TodoAll');
-
-      }
-
-      function hideSearchBlockCN() {
-
-        w3.addStyle('#searchBlock-cn', 'visibility', 'hidden');
-        w3.hide('#TodoSearchedButton');
-        document.getElementById('searchInput-cn').value = '';
-        document.getElementById('todoSearchedList').innerHTML = '';
-        listTodosByState('TodoAll');
-
-      }
-
-			function showModal(modalID, elementIDFocus) {
-        w3.addStyle('#' + modalID, 'display', 'block');
-
-      }
-
-
-			function myFunction() {
+	changeTheme('ubuntu-glass');
+    function changeTheme(currAppTheme) {
+	    document.getElementById('themecss').href= 'assets/css/themes/theme-' + currAppTheme + '.css';
+    }
+    /* search todos */
+	function showModal(modalID, elementIDFocus) {
+	    w3.addStyle('#' + modalID, 'display', 'block');
+    }
+	function myFunction() {
       	const remote = require('electron').remote;
         const BrowserWindow = remote.BrowserWindow;
 
@@ -183,23 +109,66 @@
         win.loadURL('file://' + __dirname + '/settings.html');
 				//win.setMenu(null);
   			//win.setMenuBarVisibility(false);
-	
-	    }
+    }
 
-			const {ipcRenderer} = require('electron');
-			ipcRenderer.send('resize-me-please', "initLayer");
+	const {ipcRenderer} = require('electron');
+	ipcRenderer.send('resize-me-please', "initLayer");
 
+	function resetLayer(){
+		ipcRenderer.send('resize-me-please', "initLayer");
+	}
+	$("#searchInput").keydown(function(key) {
 
-			function test(){
-				ipcRenderer.send('resize-me-please', "viewLayer");
-			}
+		if (key.keyCode == 13) {
+			console.log("aa---" + $("#searchInput").val());
+			ipcRenderer.send('resize-me-please', "viewLayer");
 
-    </script>
+			var unirest = require('unirest');
 
+			unirest.post('http://127.0.0.1:3001/api/es')
+				.header('Accept', 'application/json')
+				.send({ "id": $("#searchInput").val() })
+				.end(function (response) {
+					console.log(response.body);
+							
+					var innerData = "";
+					var esResultObj = response.body;
+					$("#esSearchResultTbody").empty();
+					if( typeof esResultObj == "undefined" ){ 
+						innerData += '<div class="w3-panel w3-border-left w3-pale-red w3-border-red" style="margin: 10px 0;">';
+		                innerData += '<span style="font-size: 18px;">검색결과가 없습니다.</span><br>';
+        		        innerData += '</div>';
+						$("#esSearchResultTbody").append(innerData);
+					}else {
+              			console.log(esResultObj.message);      
+              	
+						if( typeof esResultObj.message == "undefined" ){
+							innerData += '<div class="w3-panel w3-border-left w3-pale-red w3-border-red" style="margin: 10px 0;">';
+  	              			innerData += '<span style="font-size: 18px;">검색결과가 없습니다.</span><br>';
+	                		innerData += '</div>';
+						} else {
+							var jsontext = esResultObj.message;
+              				var contact = JSON.parse(jsontext);
+              				if( contact.length > 0 ){
+              		  			$("#esSearchResult").show();
+              		
+								for (var i = 0; i < contact.length; i++) {
+									console.log(contact[i].filename + " : " + contact[i].extension );
+									innerData += '<div class="w3-panel w3-border-left w3-pale-red w3-border-red" style="margin: 10px 0;">';
+									innerData += '<span style="font-size: 18px;">'+contact[i].filename+'</span><br>';
+									innerData += '<span class="openFileTag" data-value="'+contact[i].filepath+'">'+contact[i].filepath+'</span>';
+									innerData += '</div>';
+								}
+							}
+						}
+		              	$("#esSearchResultTbody").append(innerData);
+					}
+				});
+		}
+	});
 
-		<script>
-    	require('./renderer.js')
-		</script>
-
-  </body>
+	</script>
+	<script src="assets/js/w3.js"></script>
+	<script>require('./renderer.js')</script>
+</body>
 </html>
