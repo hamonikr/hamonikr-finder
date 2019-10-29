@@ -82,19 +82,12 @@ const main = async () => {
     console.log('Goodbye!');
   });
   
-  
+  console.log('chokidar.watch 시작');
 
-  const watcher = chokidar.watch(FILE_FOLDER, {
-    ignored: /(^|[\/\\])\../, // ignore dotfiles
-    persistent: true
-  });
+  chokidar.watch(FILE_FOLDER).on('all', async (event, path) => {
 
-  watcher.on('ready', function() {
-    console.log('Newly watched paths:', watcher.getWatched());
-  });
-  let runningCnt = 0;
-  watcher.on('all', async (event, path) => {
-  	// console.log("path====> "+ path.split("."));
+
+//	console.log("path====> "+ path.split("."));
 
 
     const asyncQuery = (query) => {
@@ -120,69 +113,87 @@ const main = async () => {
     if (event == 'unlinkDir') {
       console.log(`Ignore unlinkDir ${path}`);
     }
-    
+
     if (event == 'add') {
-      runningCnt++;
+
+
+console.log('add -----');
 			const createTagFile = async (path) => {
-    	  return new Promise( async (resolve, reject) => {
+    	  return new Promise((resolve, reject) => {
+          console.log("createTagFile---------------------------start");
     	    var arg = "{\"external\":{\"description\":\""+path +" \"}}";
-          fs.writeFileSync(process.cwd() + "/tagtest" + runningCnt +".txt", arg, 'utf8');
+          fs.writeFileSync(process.cwd() + "/tagtest.txt", arg, 'utf8');
+            var a = go(path);
+            console.log("a==="+a);
+            console.log("createTagFile---------------------------"+ path);
+            return resolve("createTagFile---------------------------done");
         });
       };
 
-      const fsrestUpload = (path) => {
+      function getCoffee() {
+        return new Promise(resolve => {
+          setTimeout(() => resolve('☕'), 2000); // it takes 2 seconds to make coffee
+        });
+      }
+      async function go(path) {
+        const coffee = await getCoffee();
+        return "aa";
+        console.log(coffee); // ☕
+      }
+
+      const fsrestUpload = async (path) => {
 				return new Promise((resolve, reject) => {
+					console.log("fsrestUpload---------------------------start");
 
-          const formData = {
-            index: 'myindex',
-            file: fs.createReadStream(path),
-            tags: fs.createReadStream("tagtest" + runningCnt +".txt")
-          };
-          request.post({url: ES_UPLOAD_PATH, formData: formData}, async (err, response, body) => {
-            if (err) return reject(err);
-            
-            const result = JSON.parse(body);
-            if (result.ok == false) {
-              return console.log('upload failed');
-            }
 
-            // console.log('업로드 한 파일의 hash 값을 local DB 에 저장한다.');
-            const addQuery = `insert into filelist(local_path, url) values ('${path}', '${result.url}')`;
-            const res = await asyncQuery(addQuery);
+					let form = new FormData();
 
-           // console.log('DB insert 되었는지 확인');
-            const query = `SELECT * FROM filelist WHERE local_path = '${path}'`;
-            //const found = await asyncFind(query);
-            const found = await asyncQuery(query);
-            if (err) {
-              return console.error(err.message);
-            }else{
-              
-              
+					form.append('index', 'myindex');
+					form.append('file', fs.createReadStream(path));
+					form.append('tags', fs.createReadStream("tagtest.txt"));
 
-            }
-            // runningCnt = 0;
-            resolve(runningCnt);
-            //console.log('post resolved');
-          });
+
+      		axios.create({
+						headers: form.getHeaders(),
+						maxContentLength: 52428890
+					}).post(ES_UPLOAD_PATH, form).then(response => {
+						console.log("fsrestUpload---------------------------"+response.data);
+						return resolve("fsrestUpload---------------------------rest upload done");
+
+					}).catch(error => {
+						if (error.response) {
+							console.log(error.response);
+						}
+						console.log(error.message);
+					});
+
+					
+					//return resolve("done tagfile");
+					console.log("fsrestUpload---------------------------done");
 				});
       };
-      var arg = "{\"external\":{\"description\":\""+path +" \"}}";
-      fs.writeFileSync(process.cwd() + "/tagtest" + runningCnt +".txt", arg, 'utf8');
-      await fsrestUpload(path).then(  
-        fs.unlink(process.cwd() + "/tagtest" + runningCnt +".txt", (err) => {
-          if (err) {
-            console.error(err)
-            return
-          }
-          //file removed
-        })
-      );
-      console.log("aaaaaaaaaaaaaaaaaaaaaaaaaa");
-      runningCnt = 0;        
       
+     
+     
+
+      console.log('awiat createTagFile -----');
+      //await createTagFile(path).then(console.log("1111111111111111111111111111"));
+      // await createTagFile(path).then( await tmpUpload(path));
+      await createTagFile(path).then( (res) => {console.log(res)} );
+/*      restFsAction = async (path) => {
+        const info = await Promise.all([
+          await createTagFile(path).then(go(path))
+        ]);
+      }
+      restFsAction(path);
+*/
+
+//console.log('awiat fsrestUpload -----');
+//				await uploadTagFile(path);
+//			await fsrestUpload(path);
+//testa(path).then(console.log('done'));
     }
-    // console.log("tttaaa==="+ runningCnt);
+
     if (event == 'change') {
       console.log('파일이 변경된 경우');
       const query = `SELECT * FROM filelist WHERE local_path = '${path}'`;
@@ -192,7 +203,8 @@ const main = async () => {
         return console.log(`Local DB 에서 파일을 찾을 수 없음.`);
       }
       
-      // console.log(`여기서 ES 서버에 파일을 다시 업로드 할 것... ${path}`);
+      console.log(`여기서 ES 서버에 파일을 다시 업로드 할 것... ${path}`);
+      
       request.post({url: ES_UPLOAD_PATH, formData: {file: fs.createReadStream(path)}}, async (err, response, body) => {
         if (err) {
           return console.error('upload failed:', err);
@@ -215,6 +227,13 @@ const main = async () => {
     }
   });
 };
+
+
+//getSearchPath();
+//main();
+//
+//module.exports = watcher;
+
 
 function watcherstart(){
   console.log('action~~~ ');

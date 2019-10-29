@@ -3,8 +3,7 @@
 
 const Koa = require('koa');
 const Router = require('koa-router');
-const bodyParser = require('koa-body');
-
+const koaBody = require('koa-body');
 const app = new Koa();
 const router = new Router();
 
@@ -12,9 +11,11 @@ const router = new Router();
 // Require the Router
 const api = require('./Esproxy/api');
 
+
 // Use the Router on the sub route /api
 router.use('/api', api.routes()); 
 
+app.use(koaBody());
 app.use(router.routes()).use(router.allowedMethods());
 
 
@@ -25,5 +26,16 @@ app.listen(port, function(){
 });
 
 
+router.get('/watcher', (req, res) => {
 const watcher = require('./watcher');
 
+	watcher.start;
+});
+
+router.post('/aaa', koaBody(),
+  (ctx) => {
+    console.log(ctx.request.body);
+    // => POST body
+    ctx.body = JSON.stringify(ctx.request.body);
+  }
+);
