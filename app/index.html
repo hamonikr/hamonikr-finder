@@ -12,6 +12,7 @@
 	<script src="../node_modules/jquery/dist/jquery.min.js"></script>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script> 
 	<link id="themecss" rel="stylesheet" href="assets/css/themes/theme-light.css" />
+	<link href="http://cdn.jsdelivr.net/gh/joungkyun/font-d2coding/d2coding.css" rel="stylesheet" type="text/css">
 	<style>
 	.dragLayer {
 		-ms-overflow-style: scrollbar;
@@ -22,6 +23,8 @@
 	}
 	body{
 		line-height: 1;
+		font-family: D2Coding, 'D2 coding', monosapce;
+		background: transparent;
 	}
 	.title-bar {
 		-webkit-app-region: drag;
@@ -92,7 +95,7 @@ closeBtn.addEventListener('click', function (event) {
 
 	changeTheme('ubuntu-glass');
     function changeTheme(currAppTheme) {
-	    document.getElementById('themecss').href= 'assets/css/themes/theme-' + currAppTheme + '.css';
+	   // document.getElementById('themecss').href= 'assets/css/themes/theme-' + currAppTheme + '.css';
     }
     /* search todos */
 	function showModal(modalID, elementIDFocus) {

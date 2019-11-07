@@ -50,7 +50,7 @@ function add_info(x) {
     pre_set.setAttribute('last-id',Number(fieldid) + 1 );
 
     // 복사할 div 엘리먼트 생성
-    var div = document.createElement('div');
+    var div = document.createElement('p');
     div.innerHTML = pre_set.innerHTML;
     div.id = 'field-data-' + fieldid;
     var temp = div.getElementsByClassName('selection_content')[0];

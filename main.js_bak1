@@ -14,16 +14,39 @@ let mainWindow, settingWindow;
 function createWindow () {
 
 	let mainWindowState = windowStateKeeper({
-		defaultWidth: 500,
-		defaultHeight: 80
+		defaultWidth: 400,
+		defaultHeight: 70
 	});
 
+	////	lending browser 
+	//settingWindow = new BrowserWindow({
+	//	show: false,
+	//	//backgroundColor: '#49464e',
+	//	skipTaskbar: false,
+	////	resizable: false,
+	//	'x': mainWindowState.x,
+	//	'y': mainWindowState.y,
+	//	'width': 450,
+	//	'height': 250,
+	//	 frame:false,
+	//	 alwaysOnTop: true,
+	//	 resizable: false,
+	//	  transparent: true,
+
+  //	});
+
+	//settingWindow.setMenu(null);
+	//settingWindow.setMenuBarVisibility(false);
+	//settingWindow.loadURL('file://' + __dirname + '/app/settings.html');
+	
+
 	mainWindow = new BrowserWindow({
+	//	backgroundColor: '#49464e',
 		skipTaskbar: false,
 	//	resizable: false,
 		'x': mainWindowState.x,
 		'y': mainWindowState.y,
-		'width': 500, 
+		'width': mainWindowState.width,
 		'height': 80,
 		//'height': mainWindowState.height,
 		 frame:false,
@@ -118,14 +141,14 @@ app.on('ready', () => {
 	globalShortcut.register('alt+f4', function() {
 		console.log('You fired ctrl+alt+j !!!');
 	});
-	setTimeout(createWindow, 500)
+	setTimeout(createWindow, 400)
 	//createWindow();
  	//mainWindow.setSize(450,60);
 });
 
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
-	   mainWindow.setSize(500,70);
+	   mainWindow.setSize(400,60);
 	 //  mainWindow.hide();
     app.quit();
   }
@@ -144,31 +167,16 @@ const {ipcMain} = require('electron')
 ipcMain.on('resize-me-please', (event, arg) => {
 	if(arg == "initLayer"){
 		mainWindow.setResizable(true);
-		mainWindow.setSize(500,80);
-		//setTimeout(testB, 500);
+		mainWindow.setSize(400,60);
 	}else if( arg == "viewLayer"){
-
-			//setTimeout(testA, 500);
-  		mainWindow.setSize(550, 540);
-		 // esRequest();
+  		mainWindow.setSize(400, 500);
+		//esRequest();
 	}else{
-		//setTimeout(testC, 500);
 		createWindow();
-		mainWindow.setSize(500,80);
+		mainWindow.setSize(400,60);
 	}		
 })
-function testA(){
-mainWindow.setSize(550, 540);
-}
-function testB(){
-mainWindow.setResizable(true);
-    mainWindow.setSize(500,80);
-}
 
-function testC(){
-createWindow();
-    mainWindow.setSize(500,80);
-}
 ipcMain.on('openFile', (event, path) => {
   console.log("main.js=-====" + path);
 //  shell.showItemInFolder(path);
