@@ -34,8 +34,11 @@
     "fs-watch-tree": "^0.2.5",
     "helmet": "^3.11.0",
     "koa": "^2.8.2",
+    "koa-mongo": "^1.9.0",
     "lodash": "^4.17.5",
     "marked": "^0.3.16",
+    "mongodb": "^3.3.3",
+    "mongoose": "^5.7.7",
     "morgan": "^1.9.1",
     "pug": "~2.0.0-beta6",
     "request-promise-native": "^1.0.7"

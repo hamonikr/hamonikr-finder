@@ -62,6 +62,13 @@ const initializeDB = () => {
 }
 
 const main = async () => {
+	var osType = require('os');
+	var fileDir  = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
+  const userIndexUUID = fs.readFileSync(fileDir);
+  console.log("userInfoData====="+ userIndexUUID);
+
+	console.log("---------------------------userInfoData====="+ userIndexUUID);
+
 	const res = fs.existsSync(DB_FILE);
 	if (res == false) {
 		console.log("initializeDB");
@@ -134,7 +141,8 @@ const main = async () => {
 				return new Promise((resolve, reject) => {
 
           const formData = {
-            index: 'myindex',
+            //index: 'myindex',
+            index: userIndexUUID,
             file: fs.createReadStream(path),
             tags: fs.createReadStream("tagtest" + runningCnt +".txt")
           };

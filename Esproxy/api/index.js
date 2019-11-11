@@ -36,26 +36,26 @@ async function fn_EsQuery(keyword){
   //     }
   // }
   try {
-      const resp = await searchDoc('myindex', '', body);
-      console.log("body========================+" + JSON.stringify(body));
-      console.log(resp);
+		const resp = await searchDoc('myindex', '', body);
+    console.log("body========================+" + JSON.stringify(body));
+    console.log(resp);
 //			console.log("===rest info === "+ JSON.stringify(resp.hits));
 
 
-			var dataJsonArray = new Array();
+		var dataJsonArray = new Array();
 			
-      resp.hits.hits.forEach(function(hit){
-       console.log(hit._source.file.filename);
-       var dataJson = new Object();
-        //retVal += hit._source.file.filename+"\n=="+hit._source.file.extension+"\n=="+hit._source.external.description;
-				dataJson.filename = hit._source.file.filename;
-				dataJson.extension = hit._source.file.extension;
-				dataJson.filepath = hit._source.external.description;
+    resp.hits.hits.forEach(function(hit){
+    	console.log(hit._source.file.filename);
+      var dataJson = new Object();
+      //retVal += hit._source.file.filename+"\n=="+hit._source.file.extension+"\n=="+hit._source.external.description;
+			dataJson.filename = hit._source.file.filename;
+			dataJson.extension = hit._source.file.extension;
+			dataJson.filepath = hit._source.external.description;
 
-				dataJsonArray.push(dataJson);
-      })
+			dataJsonArray.push(dataJson);
+    })
 
-			var jsonRet = JSON.stringify(dataJsonArray);
+		var jsonRet = JSON.stringify(dataJsonArray);
 		//	console.log(jsonRet);
 
   } catch (e) {
@@ -81,6 +81,7 @@ async function fn_EsQuery(keyword){
 
 
 api.post('/es', async (ctx, next) => {
+console.log("es==================+++");
     console.log(ctx.request.body);
     var esResultObj = ctx.request.body;
     console.log(esResultObj.id); 
