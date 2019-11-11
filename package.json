@@ -34,9 +34,13 @@
     "koa-router": "^7.4.0",
     "markdown-it": "8.4.2",
     "nedb": "1.8.0",
+    "node-id-generator": "^0.1.1",
     "request": "^2.88.0",
+    "shortid": "^2.2.15",
+    "uniqid": "^5.1.0",
     "unirest": "^0.6.0",
-    "unzipper": "0.9.3"
+    "unzipper": "0.9.3",
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
     "electron": "4.0.0",

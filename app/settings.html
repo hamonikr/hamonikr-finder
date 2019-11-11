@@ -218,12 +218,11 @@ input {
     <div class="profile noshow" style="display:none;">
       <h1>Personal Info</h1>
       <h2>사용자명 </h2>
-			<p><input type="text" placeholder="Enter user name or user id" class="noneDragLayer"></input> <button class="btn noneDragLayer">확인</button></p>
+			<p><input type="text" id="userId" placeholder="Enter user name or user id" class="noneDragLayer"></input></p>
 			
 			<h2>그룹명 </h2>
-			<p><input type="text" placeholder="Enter Group Name" class="noneDragLayer"></input> <button class="btn noneDragLayer">확인</button></p>
-
-
+			<p><input type="text" id="groupNm" placeholder="Enter Group Name" class="noneDragLayer"></input></p>
+			<p><button class="btn noneDragLayer" onClick="setProfile();">확인</button></p>
     </div>
     
     <div class="payment noshow" style="display:none;">
@@ -427,6 +426,17 @@ function dirSettingsSave(){
   ipcRenderer.send('save-dir-path', tempDirAddress);
 }
 
+function setProfile(){
+	console.log("aaa");
+	var unirest = require('unirest');
+
+  unirest.post('http://127.0.0.1:3001/profile')
+  	.header('Accept', 'application/json')
+    .send({ "userId": $("#userId").val(), "groupNm": $("#groupNm").val() })
+    .end(function (response) {
+    	console.log(response.body);
+	 });
+}
 </script>
 <script>require('./renderer.js')</script>
 
