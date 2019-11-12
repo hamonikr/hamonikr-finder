@@ -2,18 +2,16 @@ const Router = require('koa-router');
 const api = new Router();
 const bodyParser = require('koa-body');
 const rp = require('request-promise')
-const esClient = require('./client');
+const esClient = require('../client');
+const searchDoc = async function(indexName, mappingType, dataload){
+    return await esClient.search({
+        index: indexName,
+//        type: mappingType,
+        body: dataload
+    });
+}
 
-
-//const searchDoc = async function(indexName, mappingType, dataload){
-//    return await esClient.search({
-//        index: indexName,
-////        type: mappingType,
-//        body: dataload
-//    });
-//}
-//
-//module.exports = searchDoc;
+module.exports = searchDoc;
 
 async function fn_EsQuery(keyword){
   var retVal="";
@@ -25,10 +23,24 @@ async function fn_EsQuery(keyword){
     },
     "_source": [ "content", "file", "path", "external" ]
   }
+  // const body = {
+  //     query: {
+  //         //match: {
+  //         //    "title": "Learn"
+  //         //}
+
+  //         query_string: {
+  //           query: "*"+keyword+"*" //"한글",
+  //           , default_field: "content"
+  //         }
+  //     }
+  // }
   try {
 		const resp = await searchDoc('myindex', '', body);
     console.log("body========================+" + JSON.stringify(body));
     console.log(resp);
+//			console.log("===rest info === "+ JSON.stringify(resp.hits));
+
 
 		var dataJsonArray = new Array();
 			
@@ -80,32 +92,27 @@ console.log("es==================+++");
     ctx.body = { message : aa };
   }
 );
-const createDoc = async function(indexName){
-    return await esClient.create({
-        index: indexName
-    });
-}
 
 
 //	es index create
 api.get('/escreate/:id', async (ctx, next) => {
 	console.log("aa===="+ ctx.params.id);
-	var indexName = ctx.params.id;
-	esClient.initIndex(indexName);	
-
+	checkIndices(ctx.params.id);
 });
 
-// es exists and create
-api.post('/indexExists', async (ctx, next) => {
-	console.log("=======================exists ==== "+ctx.request.body.userUuid);
-//  console.log("aa===="+ ctx.params.id);
-  var indexName = ctx.request.body.userUuid;
-  var indexChk = await esClient.indexExists(indexName).then();
-	if( indexChk == false){
-		esClient.initIndex(indexName)
-	}
-	ctx.body = "t";
-});
+
+
+function checkIndices(indexVal) {
+    esClient.indices.exists({index: indexVal}, (err, res, status) => {
+        if (res) {
+            console.log('index already exists');
+        } else {
+            esClient.indices.create( {index: indexVal}, (err, res, status) => {
+            console.log(err, res, status);
+        })
+      }
+    })
+}
 
 
 

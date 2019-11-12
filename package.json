@@ -34,6 +34,8 @@
     "fs-watch-tree": "^0.2.5",
     "helmet": "^3.11.0",
     "koa": "^2.8.2",
+    "koa-bodyparser": "^4.2.1",
+    "koa-json-body": "^5.3.0",
     "koa-mongo": "^1.9.0",
     "lodash": "^4.17.5",
     "marked": "^0.3.16",

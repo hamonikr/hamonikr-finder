@@ -61,13 +61,16 @@ const initializeDB = () => {
 	});
 }
 
-const main = async () => {
-	var osType = require('os');
-	var fileDir  = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
-  const userIndexUUID = fs.readFileSync(fileDir);
-  console.log("userInfoData====="+ userIndexUUID);
+const main = async (userUuid) => {
 
-	console.log("---------------------------userInfoData====="+ userIndexUUID);
+	console.log("wacher ==== " + userUuid);
+	//var osType = require('os');
+	//var fileDir  = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
+  //const userIndexUUID = fs.readFileSync(fileDir);
+  //console.log("userInfoData====="+ userIndexUUID);
+	
+	const userIndexUUID = userUuid;
+	console.log("userIndexUUID is === "+ userIndexUUID);
 
 	const res = fs.existsSync(DB_FILE);
 	if (res == false) {
@@ -96,9 +99,10 @@ const main = async () => {
     persistent: true
   });
 
-  watcher.on('ready', function() {
-    console.log('Newly watched paths:', watcher.getWatched());
-  });
+  //watcher.on('ready', function() {
+  //  console.log('Newly watched paths:', watcher.getWatched());
+  //});
+
   let runningCnt = 0;
   watcher.on('all', async (event, path) => {
   	// console.log("path====> "+ path.split("."));
@@ -140,6 +144,7 @@ const main = async () => {
       const fsrestUpload = (path) => {
 				return new Promise((resolve, reject) => {
 
+console.log("======================================================aaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
           const formData = {
             //index: 'myindex',
             index: userIndexUUID,
@@ -147,9 +152,13 @@ const main = async () => {
             tags: fs.createReadStream("tagtest" + runningCnt +".txt")
           };
           request.post({url: ES_UPLOAD_PATH, formData: formData}, async (err, response, body) => {
-            if (err) return reject(err);
+            if (err) {
+							console.log("error==================="+err);
+							return reject(err);
+						}
             
             const result = JSON.parse(body);
+						console.log("result========================="+ result);
             if (result.ok == false) {
               return console.log('upload failed');
             }
@@ -158,12 +167,12 @@ const main = async () => {
             const addQuery = `insert into filelist(local_path, url) values ('${path}', '${result.url}')`;
             const res = await asyncQuery(addQuery);
 
-           // console.log('DB insert 되었는지 확인');
+            console.log('DB insert 되었는지 확인');
             const query = `SELECT * FROM filelist WHERE local_path = '${path}'`;
             //const found = await asyncFind(query);
             const found = await asyncQuery(query);
             if (err) {
-              return console.error(err.message);
+              return console.error("error indsert === "+ err.message);
             }else{
               
               
@@ -224,14 +233,21 @@ const main = async () => {
   });
 };
 
-function watcherstart(){
-  console.log('action~~~ ');
+function watcherstart(arg){
+  console.log('action~~~  ' + JSON.stringify(arg));
   getSearchPath();
   main();
 }
 
+//module.exports = {
+//	start: watcherstart()
+//};
+
 module.exports = {
-	start: watcherstart()
+	start: function(arg){
+	  getSearchPath();
+  	main(arg);
+	}
 };
 
 

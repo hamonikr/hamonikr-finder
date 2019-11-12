@@ -7,7 +7,7 @@ const koaBody = require('koa-body');
 const app = new Koa();
 const router = new Router();
 const mongo = require('./MongoCon/mongoconf')
-
+const bodyParser = require('koa-bodyparser');
 
 // Require the Router
 const api = require('./Esproxy/api');
@@ -18,6 +18,7 @@ app.use(mongo())
 router.use('/api', api.routes()); 
 //router.use('/mongoApi', mongoApi.routes()); 
 
+//app.use(bodyParser());
 app.use(koaBody());
 app.use(router.routes()).use(router.allowedMethods());
 
@@ -29,11 +30,15 @@ app.listen(port, function(){
 });
 
 //	Watcher
-router.get('/watcher', (req, res) => {
+router.post('/watcher', async (ctx, next) => {
+	console.log("watcher==================+++");
+  console.log(ctx.request.body.userUuid);
+	var watcherObj = ctx.request.body.userUuid;
+	
 	const watcher = require('./watcher');
-	watcher.start;
-});
+  watcher.start(watcherObj);
 
+});
 
 router.post('/aaa', koaBody(),
   (ctx) => {
@@ -60,6 +65,8 @@ console.log("userinfo==================+++");
     const profileObj = ctx.request.body;
 		var uuidTmp = profileObj.userUuid;
 		let chkUuid = "";
+
+console.log("userinfo==================+++" + uuidTmp);
 
 		const userUuidVal = await ctx.db.collection('test_users').findOne({"user_uuid":uuidTmp});
     console.log("ab----"+ JSON.stringify(userUuidVal));
