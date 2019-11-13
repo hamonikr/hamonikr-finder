@@ -12,16 +12,10 @@ const bodyParser = require('koa-bodyparser');
 // Require the Router
 const api = require('./Esproxy/api');
 app.use(mongo())
-
-
-// Use the Router on the sub route /api
-router.use('/api', api.routes()); 
-//router.use('/mongoApi', mongoApi.routes()); 
-
-//app.use(bodyParser());
 app.use(koaBody());
 app.use(router.routes()).use(router.allowedMethods());
 
+router.use('/api', api.routes()); 
 
 // Server
 var port = 3001;
@@ -32,11 +26,25 @@ app.listen(port, function(){
 //	Watcher
 router.post('/watcher', async (ctx, next) => {
 	console.log("watcher==================+++");
-  console.log(ctx.request.body.userUuid);
+  console.log("useruuid==="+ ctx.request.body.userUuid);
+  console.log("gubun === "+ ctx.request.body.gubun);
 	var watcherObj = ctx.request.body.userUuid;
-	
-	const watcher = require('./watcher');
-  watcher.start(watcherObj);
+	var gubun = ctx.request.body.gubun;
+
+	if( gubun == "PV"){
+		const watcher = require('./watcher');
+	  watcher.start(watcherObj);
+	}else{
+		var groupIndexNm = ctx.request.body.groupIndexNm;
+		var userNm = ctx.request.body.userNm;
+		const pr_watcher = require('./pr_watcher');
+	  pr_watcher.start(watcherObj, groupIndexNm, userNm);
+	}
+	//const watcher = require('./watcher');
+  //watcher.start(watcherObj);
+	//
+	//const pr_watcher = require('./pr_watcher');
+  //pr_watcher.start(watcherObj);
 
 });
 
@@ -49,60 +57,43 @@ router.post('/aaa', koaBody(),
 );
 
 router.post('/profile', async (ctx, next) => {
-console.log("es==================+++");
+console.log(" profile ==================+++");
     console.log(ctx.request.body);
     var profileObj = ctx.request.body;
-    console.log(profileObj.userId);
-    console.log(profileObj.groupNm+"==nm");
+    console.log("userid === "+ profileObj.userId);
+    console.log("groum name == "+ profileObj.groupNm);
+		console.log("useruuid === "+ profileObj.userUuid);
 
-		const tmp = await ctx.db.collection('test_users').updateOne({ userUuid: profileObj.userUuid},{ $set:{ user_id: profileObj.userId, group_nm: profileObj.groupNm}})
+		const tmp = await ctx.db.collection('test_users').updateOne({ user_uuid: profileObj.userUuid},{ $set:{ user_nm: profileObj.userId, group_nm: profileObj.groupNm}})
 		console.log("===tmp===="+ tmp);
   }
 );
 
 router.post('/userinfo', async (ctx) => {
-console.log("userinfo==================+++");
     const profileObj = ctx.request.body;
 		var uuidTmp = profileObj.userUuid;
 		let chkUuid = "";
 
-console.log("userinfo==================+++" + uuidTmp);
-
 		const userUuidVal = await ctx.db.collection('test_users').findOne({"user_uuid":uuidTmp});
-    console.log("ab----"+ JSON.stringify(userUuidVal));
 
 		if( userUuidVal == null  ){
 				console.log("Insert");
 				ctx.body = await ctx.db.collection('test_users').insertOne({ user_uuid: uuidTmp, group_nm: '', user_nm: '' }); //, (err, result) => {
- 				//  if(err) console.log(err);
-				//  else {
-				//		 console.log("retu-------" +result.ops[0].user_uuid)
-				//		 chkUuid = result.ops[0].user_uuid;
-				//		 ctx.body = chkUuid;
-				//		 return chkUuid;
-				// }
-				//});
 				ctx.body = ctx.body.ops[0].user_uuid;
 		}else{
 			ctx.body = userUuidVal.user_uuid;
 		}
-	
-
-		console.log('c======' + ctx.body);
-	//	return ctx.body = userUuidVal.user_uuid;
-		//var doc = await ctx.db.collection('test_users').findOne({"user_id":"3ocmlf04qyk2tsintrk2tsintq"});
-    //var doc1 = await ctx.db.collection('test_users').find({"user_id":"3ocmlf04qyk2tsintrk2tsintq"}).toArray();
-    //console.log(doc);
-    //console.log(doc1 );
-
-
   }
 );
 
 // Mongo
-router.get('/select', async(ctx) => {
+router.post('/select', async(ctx) => {
   console.log("select----------");
-  ctx.body = await ctx.db.collection('test_users').find().toArray()
+	var profileObj = ctx.request.body;
+  var uuidTmp = profileObj.userUuid;
+	console.log("uuidtmp===="+ uuidTmp);
+  //ctx.body = await ctx.db.collection('test_users').find().toArray()
+	ctx.body = await ctx.db.collection('test_users').findOne({"user_uuid":uuidTmp});
 });
 
 

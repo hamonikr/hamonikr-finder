@@ -13,7 +13,7 @@ var searchPathAry = new Array();
 function getSearchPath(){
 
 	var osType = require('os');
-	var fileDir = osType.homedir() + '/.config/hamonikr_finder/finder_config';
+	var fileDir = osType.homedir() + '/.config/hamonikr_finder/pr_finder_config';
   var tmpStr = fs.readFileSync(fileDir, 'utf8');
   var arrPath = tmpStr.split('\n');
 
@@ -24,10 +24,10 @@ function getSearchPath(){
 
 
 const ES_UPLOAD_PATH = 'http://192.168.0.55:8081/_upload'
-const DB_FILE = './db/files.db';
+const DB_FILE = './db/pr_files.db';
 //const FILE_FOLDER = '/home/rnd/test-file';
 const FILE_FOLDER = searchPathAry;
-const FileSharing = "PV";
+const FileSharing = "PR";
 const initializeDB = () => {
 
   //const dropQuery = `DROP TABLE IF EXISTS filelist`;
@@ -60,21 +60,13 @@ const initializeDB = () => {
 	});
 }
 
-const maintest = async (userUuid) => {
-	const watcher = chokidar.watch(FILE_FOLDER, {
-    ignored: /(^|[\/\\])\../, // ignore dotfiles
-    persistent: true
-  });
+const main = async (argUserUuid, argGroupIndex, argUserNm) => {
 
-	watcher.on('ready', function() {
-    console.log('Newly watched paths:', watcher.getWatched());
-  });
+	const userIndexUUID = argGroupIndex;
+	const userNm = argUserNm;
+	const userUuid = argUserUuid;
 
-}
 
-const main = async (userUuid) => {
-
-	const userIndexUUID = userUuid;
 	const res = fs.existsSync(DB_FILE);
 	if (res == false) {
 		console.log("initializeDB");
@@ -187,10 +179,12 @@ console.log("======================================================aaaaaaaaaaaaa
           });
 				});
       };
-      //var arg = "{\"external\":{\"description\":\""+path +" \"}}";
-			var arg = "{\"external\":{\"description\":\""+path +" \", \"FileSharing\":\""+FileSharing+"\"}}";
+
+      var arg = "{\"external\":{\"description\":\""+path +" \", \"FileSharing\":\""+FileSharing+"\", \"owner_uuid\":\""+userUuid+"\", \"owner_nm\":\""+userNm+"\"}}";
+//			userUuid,
       fs.writeFileSync(process.cwd() + "/tagtest" + runningCnt +".txt", arg, 'utf8');
-      await fsrestUpload(path).then(  
+      
+			await fsrestUpload(path).then(  
         fs.unlink(process.cwd() + "/tagtest" + runningCnt +".txt", (err) => {
           if (err) {
             console.error(err)
@@ -199,7 +193,6 @@ console.log("======================================================aaaaaaaaaaaaa
           //file removed
         })
       );
-      console.log("aaaaaaaaaaaaaaaaaaaaaaaaaa");
       runningCnt = 0;        
       
     }
@@ -248,10 +241,10 @@ function watcherstart(arg){
 //};
 
 module.exports = {
-	start: function(arg){
+	start: function(userUuid, groupIndex, userNm){
 	  getSearchPath();
- 	main(arg);
-// maintest(arg);
+ 	main(userUuid, groupIndex, userNm);
+//	 maintest(arg);
 	}
 };
 

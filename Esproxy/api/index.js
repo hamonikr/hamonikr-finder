@@ -15,18 +15,27 @@ const esClient = require('./client');
 //
 //module.exports = searchDoc;
 
-async function fn_EsQuery(keyword){
+async function fn_EsQuery(keyword, indexName){
   var retVal="";
+  //const body = {
+  //  "query": {
+  //      "match" : {
+  //          "content" : "*"+keyword+"*"
+  //      }
+  //  }
+  //  //,"_source": [ "content", "file", "path", "external" ]
+  //}
   const body = {
-    "query": {
-        "match" : {
-            "content" : "*"+keyword+"*"
-        }
-    },
-    "_source": [ "content", "file", "path", "external" ]
+      query: {
+          query_string: {
+            query: "*"+keyword+"*" //"한글",
+           // , default_field: "content"
+          }
+      }
   }
   try {
-		const resp = await searchDoc('myindex', '', body);
+	//	esClient.initIndex
+		const resp = await esClient.searchDoc(indexName, '', body);
     console.log("body========================+" + JSON.stringify(body));
     console.log(resp);
 
@@ -62,29 +71,19 @@ var aa = ctx.params.id;
  	ctx.body = { message : aa };
  });
 
-// api.all('/es', bodyParser(), (ctx, next) => {
-//   console.log("\n post----"+ctx.request.body+"---\n");
-//   console.log("\n post----"+ctx.params[0]+"---\n");
-//   console.log("\n post----"+ctx.body+"---\n");
-// });
-
 
 api.post('/es', async (ctx, next) => {
 console.log("es==================+++");
     console.log(ctx.request.body);
     var esResultObj = ctx.request.body;
     console.log(esResultObj.id); 
+    console.log(esResultObj.userUuid); 
     
-    var aa = await fn_EsQuery(esResultObj.id);
+    var aa = await fn_EsQuery(esResultObj.id, esResultObj.userUuid);
     console.log("\n----"+aa+"---\n");
     ctx.body = { message : aa };
   }
 );
-const createDoc = async function(indexName){
-    return await esClient.create({
-        index: indexName
-    });
-}
 
 
 //	es index create
@@ -104,7 +103,7 @@ api.post('/indexExists', async (ctx, next) => {
 	if( indexChk == false){
 		esClient.initIndex(indexName)
 	}
-	ctx.body = "t";
+	ctx.body = "true";
 });
 
 
