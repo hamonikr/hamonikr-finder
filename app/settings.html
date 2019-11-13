@@ -12,6 +12,8 @@
 		<link href="http://cdn.jsdelivr.net/gh/joungkyun/font-d2coding/d2coding.css" rel="stylesheet" type="text/css"/>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 		<!--style media="" data-href="https://use.fontawesome.com/releases/v5.0.10/css/all.css"></style-->
+
+
 		<style>
 .dragLayer {
   -ms-overflow-style: scrollbar;
@@ -227,25 +229,38 @@ input {
     
     <div class="payment noshow" style="display:none;">
       <h1>색인폴더 지정.</h1>
-      <h2>-검색 검색 대상 폴더를 지정해주세요.</h2>
+      <h2>-개인 폴더 지정.</h2>
 			<div class="w3-container noneDragLayer">
 			  <div id="pre_set" style="display:none;font-size: 13px;" last-id="0">
 			    <div>
 			      <div class="delete_box w3-right">
 			        <button class="btn" onclick="delete_info(this)" >삭제</button>
-			        <!--button onclick="delete_info(this)" style="font-size:70%;padding: 4px;margin: 3px;">삭제</button-->
 			      </div>
 			      <div class="selection_content" style="overflow: auto;font-size: 13px;"></div>
 			    </div>
 			  </div>
-			
 			  <div id="field" style="max-height:770px; overflow:auto; width: 300px;"></div>
-			
-			
 			</div>
 			<p>
-			<button id="browse-directory" class="btn noneDragLayer">+ Add Folder</button>
-			<button id="browse-directory-save" class="btn noneDragLayer" onclick="dirSettingsSave();">∴ Save  </button>
+      <button id="browse-directory" class="cls_browse-directory btn noneDragLayer">+ Add Folder</button>
+      <button id="browse-directory-save" class="btn noneDragLayer" onclick="dirSettingsSave();">∴ Save  </button>
+      </p>
+			
+			<h2>-공유 폴더 지정.</h2>
+      <div class="w3-container noneDragLayer">
+        <div id="public_pre_set" style="display:none;font-size: 13px;" last-id="0">
+          <div>
+            <div class="public_delete_box w3-right">
+              <button class="btn" onclick="public_delete_info(this)" >삭제</button>
+            </div>
+            <div class="public_selection_content" style="overflow: auto;font-size: 13px;"></div>
+          </div>
+        </div>
+        <div id="public_field" style="max-height:770px; overflow:auto; width: 300px;"></div>
+      </div>
+			<p>
+			<button id="public_browse-directory" class="cls_browse-directory btn noneDragLayer">+ Add Folder</button>
+			<button id="browse-directory-save" class="btn noneDragLayer" onclick="public_dirSettingsSave();">∴ Save  </button>
 			</p>
 
     </div>
@@ -272,6 +287,10 @@ $('nav a').click(function(e) {
 		$('.payment').show();
 		$('#searchBodyId').height("1px");
 		$('#BodyId').removeClass('noshow');
+
+		fn_file_index_load();
+
+
   }
   else if (this.id === 'profile') {
     $('.profile').removeClass('noshow');
@@ -280,6 +299,7 @@ $('nav a').click(function(e) {
 		$('.profile').show();
 		$('#searchBodyId').height("1px");
 		$('#BodyId').removeClass('noshow');
+		fn_load_profile();
   }
   else if(this.id === 'search') {
 		ipcRenderer.send('resize-me-please', "initLayer");
@@ -317,6 +337,9 @@ $('#settings').click(function(e) {
 	$('#esSearchResultTbody').addClass('noshow');
   $('#esSearchResultTbody').hide();
 	$('#BodyId').removeClass('noshow');
+
+	fn_load_profile();
+
 });
 
 function layerChange(){
@@ -348,11 +371,15 @@ $("#searchInput").keydown(function(key) {
 			$('#esSearchResultTbody').show();
 			$('#search').css('margin-top','7px');
 
+			var fs = require("fs");
+			var osType = require('os');
+		  var dirpath = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
+			var uuidData = fs.readFileSync(dirpath, 'utf8');
 
       var unirest = require('unirest');
       unirest.post('http://127.0.0.1:3001/api/es')
         .header('Accept', 'application/json')
-        .send({ "id": $("#searchInput").val() })
+        .send({ "id": $("#searchInput").val(), "userUuid":uuidData })
         .end(function (response) {
           var innerData = "";
           var esResultObj = response.body;
@@ -389,12 +416,16 @@ $("#searchInput").keydown(function(key) {
         });
     }
   });
+
+
+	
 function addconfige_info(x) {
+
     var pre_set = document.getElementById('pre_set');
     var fieldid = pre_set.getAttribute('last-id');
     pre_set.setAttribute('last-id',Number(fieldid) + 1 );
 
-    // 복사할 div 엘리먼트 생성
+    // 복사할 div 생성
     var div = document.createElement('div');
     div.innerHTML = pre_set.innerHTML;
     div.id = 'field-data-' + fieldid;
@@ -409,33 +440,148 @@ function delete_info(obj) {
    var target = obj.parentNode.getAttribute('target');
    var field = document.getElementById(target);
     document.getElementById('field').removeChild(field);
+
+		if( $("#field").children().length == 0){
+    	document.getElementById('pre_set').setAttribute('last-id', 0);
+  	}
 }
 
 function dirSettingsSave(){
+	//if( $("#field").children().length == 0){
+  //  fn_alert("색인대상의 폴더를 등록해주세요.");
+  //  return false;
+  //}
+
   var tempDirAddress = "";
   if ( $("#field").children().length != 0 ){
     for( var i=0; i<$("#field").children().length; i++){
       console.log(i +"==="+ $("#field-data-"+i).find(".selection_content").text() );
       tempDirAddress += $("#field-data-"+i).find(".selection_content").text() +"\n";
     }
-  }
-
-  console.log("path==="+ tempDirAddress);
-
-  const {ipcRenderer} = require('electron');
-  ipcRenderer.send('save-dir-path', tempDirAddress);
+		const {ipcRenderer} = require('electron');
+	  ipcRenderer.send('save-dir-path', tempDirAddress, "true", "PV", "" , $("#userId").val());
+  }else{
+		ipcRenderer.send('save-dir-path', tempDirAddress, "false", "PV", "", $("#userId").val());
+	}
 }
 
+
+<!-- public -->
+function public_addconfige_info(x) {
+
+    var pre_set = document.getElementById('public_pre_set');
+    var fieldid = pre_set.getAttribute('last-id');
+    pre_set.setAttribute('last-id',Number(fieldid) + 1 );
+
+    // 복사할 div 생성
+    var div = document.createElement('div');
+    div.innerHTML = pre_set.innerHTML;
+    div.id = 'public_field-data-' + fieldid;
+    var temp = div.getElementsByClassName('selection_content')[0];
+    temp.innerText = x ;
+    var deleteBox = div.getElementsByClassName('public_delete_box')[0];
+    deleteBox.setAttribute('target',div.id);
+    document.getElementById('public_field').appendChild(div);
+}
+
+function public_delete_info(obj) {
+   var target = obj.parentNode.getAttribute('target');
+	 console.log("ta==="+ target);
+   var field = document.getElementById(target);
+	 console.log("fi===="+ field);
+    document.getElementById('public_field').removeChild(field);
+
+    if( $("#public_field").children().length == 0){
+      document.getElementById('public_pre_set').setAttribute('last-id', 0);
+    }
+}
+
+function public_dirSettingsSave(){
+
+	if( $("#groupNm").val().length == 0){
+		fn_alert("정보설정 매뉴에서 그룹을 등록해주세요.");
+		return false;
+	}
+	if( $("#public_field").children().length == 0){
+    fn_alert("공유할 폴더를 등록해주세요.");
+    return false;
+  }
+
+  var tempDirAddress = "";
+  if ( $("#public_field").children().length != 0 ){
+    for( var i=0; i<$("#public_field").children().length; i++){
+      console.log(i +"==="+ $("#public_field-data-"+i).find(".public_selection_content").text() );
+      tempDirAddress += $("#public_field-data-"+i).find(".public_selection_content").text() +"\n";
+    }
+    const {ipcRenderer} = require('electron');
+    ipcRenderer.send('save-dir-path', tempDirAddress, "true", "PR", $("#groupNm").val(), $("#userId").val());
+  }else{
+    ipcRenderer.send('save-dir-path', tempDirAddress, "false", "PR", $("#groupNm").val(), $("#userId").val());
+  }
+}
+
+
 function setProfile(){
-	console.log("aaa");
 	var unirest = require('unirest');
+	var fs = require("fs");
+  var osType = require('os');
+  var dirpath = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
+  var uuidData = fs.readFileSync(dirpath, 'utf8');
 
   unirest.post('http://127.0.0.1:3001/profile')
   	.header('Accept', 'application/json')
-    .send({ "userId": $("#userId").val(), "groupNm": $("#groupNm").val() })
+    .send({ "userId": $("#userId").val(), "groupNm": $("#groupNm").val(), "userUuid": uuidData })
     .end(function (response) {
     	console.log(response.body);
 	 });
+}
+function fn_file_index_load(){
+	const {ipcRenderer} = require('electron');
+	ipcRenderer.send('openConfigFile', () => {
+	  console.log("Event sent.");
+	})
+	
+	ipcRenderer.on('settingData_arr', (event, data) => {
+	  var settingData_arr = data.split('\n');
+	  if( settingData_arr.length != 0 ){
+	    for(var i=0; i<settingData_arr.length -1 ;++i){
+	      addconfige_info(settingData_arr[i]);
+	    }
+	  }
+	})
+}
+
+function fn_load_profile(){
+	var unirest = require('unirest');
+  var fs = require("fs");
+  var osType = require('os');
+  var dirpath = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
+  var uuidData = fs.readFileSync(dirpath, 'utf8');
+  
+	unirest.post('http://127.0.0.1:3001/select')
+    .header('Accept', 'application/json')
+    .send({ "userUuid": uuidData })
+    .end(function (response) {
+			$("#groupNm").val(response.body.group_nm);
+			$("#userId").val(response.body.user_nm);
+   });	
+}
+function fn_alert(arg){
+	const Dialogs = require('dialogs')
+  const dialogs = Dialogs()
+  dialogs.alert(arg, ok => {
+    console.log('alert', ok)
+    //dialogs.confirm('ok?', ok => {
+    //  console.log('confirm', ok)
+    //  dialogs.prompt('username', 'joe.smith@gmail.com', ok => {
+    //    console.log('prompt with default', ok)
+    //    dialogs.prompt('username', ok => {
+    //      console.log('prompt', ok)
+    //    })
+    //  })
+    //})
+  });
+	 $('.dialog-widget').addClass('noneDragLayer');
 }
 </script>
 <script>require('./renderer.js')</script>

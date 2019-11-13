@@ -38,12 +38,6 @@ function createWindow () {
 		// titleBarStyle: 'hiddenInset' 
 	});
 
-	console.log("--"+ mainWindowState.width);
-	console.log("--"+ mainWindowState.height);
-	console.log("--"+ mainWindowState.x);
-	console.log("--"+ mainWindowState.y);
-
-
   	mainWindowState.manage(mainWindow);
 
   	mainWindow.loadURL('file://' + __dirname + '/app/settings.html');
@@ -52,7 +46,7 @@ function createWindow () {
   	mainWindow.setMenu(null);
 		mainWindow.setMenuBarVisibility(false);	
   // Open the DevTools.
-  //	mainWindow.webContents.openDevTools(); 
+  	mainWindow.webContents.openDevTools(); 
 
 		mainWindow.on('closed', function () {
 		mainWindowState.saveState(mainWindow);
@@ -154,6 +148,8 @@ ipcMain.on('resize-me-please', (event, arg) => {
 		mainWindow.setSize(500,80);
 	}		
 })
+
+
 ipcMain.on('openFile', (event, path) => {
   console.log("main.js=-====" + path);
 //  shell.showItemInFolder(path);
@@ -189,21 +185,25 @@ ipcMain.on('openConfigFile', (event, path) => {
 const osType = require('os');
 const dir  = osType.homedir() + '/.config/hamonikr_finder'
 
-ipcMain.on('save-dir-path', (event, arg) => {
+ipcMain.on('save-dir-path', (event, arg, fileIndexingGubun, gubun, gruopNm, userNm) => {
 	// 설정 폴더 생성.
-	makeRecursiveFileAsync(dir, arg);
+	makeRecursiveFileAsync(dir, arg, gubun, gruopNm, userNm);
+
+//	색인 파일 초기화시 작업....
+	if( fileIndexingGubun == false){
+		console.log("aa==");
+	}else{
+		console.log("bb==");
+
+	}
+
 })
+//const cleanRecursiveFileAsync = async(dir, arg, gubun) => {
+//	var makeWatchFile = await create_settingFile(arg);
+//}
 
-//const makeRecursiveFileAsync = async(data, fileNm) => {
-const makeRecursiveFileAsync = async(dir, arg) => {
+const makeRecursiveFileAsync = async(dir, arg, gubun, groupNm, userNm) => {
    try{
-//      var json = data;
-//			var osType = require('os');
-//		  var dir  = osType.homedir() + '/.config/hamonikr_finder'
-      //var makeDirpAsync = await mkDirpAsync(dir);
-			//var makeFileTmp = await userInfoWriteFile();
-			//var uuidRestApiChk = await test3();
-
 			// 폴더 및 파일 유무 체크
 			var chkFile = FnChk_settingsFile();
 			console.log("chkFile==="+ chkFile);
@@ -212,17 +212,25 @@ const makeRecursiveFileAsync = async(dir, arg) => {
 				var makeFileTmp = await userInfoWriteFile();
 			}
 
+//	ip chk update~ =====
+			//watcher ~ update action
+
 			//파일의 uuid가 디비에 존제 여부
 			var chkUuidInFile = await readUuidFile();
 			//var chkUuidDb = await uuid_db_chk(chkUuidInFile);
 			var chkUuidDb = await getToken(chkUuidInFile);
 			
 			// 색인 폴더 설정
-			var makeWatchFile = await create_settingFile(arg);
+			var makeWatchFile = await create_settingFile(arg, gubun);
+			// es index exists chk
 			var es_index = await esIndexExists(chkUuidInFile);
-			console.log("aaaaaaaaaaaaaaaaaa");
-			var watcher_call = await watcherCall(chkUuidInFile);
-			console.log("bbbbbbbbbbbbbbbbbbbb");
+
+	console.log("1==="+ chkUuidInFile);
+	console.log("2==="+ gubun);
+	console.log("3==="+ groupNm);
+	console.log("4==="+ userNm);
+			var watcher_call = await watcherCall(chkUuidInFile, gubun, groupNm, userNm);
+
       return "true";
    }
    catch(err){
@@ -234,18 +242,12 @@ const makeRecursiveFileAsync = async(dir, arg) => {
 const request = require('request');
 function uuid_db_chk(arg){
 	return new Promise((resolve, reject) => {
-
-	console.log("dbchk ==== "+ arg);
-
 		const formData = {
 	    userUuid:  arg
 	  };
-		console.log("formdata====" + formData);
 	  request.post({url: "http://127.0.0.1:3001/userinfo", formData: formData}, async (err, response, body) => {
 	    if (err) return reject(err);
-	
 	    const result = body; // JSON.parse(body);
-			console.log("dbchk===result ==="+ result);
 			resolve("true");
 		});
 	});
@@ -255,21 +257,14 @@ function readUuidFile(){
 return new Promise(function(resolve, reject){
   var osType = require('os');
   var dirpath = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
-
 		fs.readFile(dirpath, (err, data) => {
       if (err)  { reject("false")}
       else {
 				var os = require("os");
 				var text = data.toString().split(os.EOL);
-				console.log( "===============================+> "+ text.length);
-				console.log( "===============================+> "+ text[0]+"===");
-
-        console.log("=data==="+text[0]+"===");
         resolve(text[0]);
-        
       }
     });
-
 	});
 }
 
@@ -374,16 +369,15 @@ function esIndexExists(arg){
 
 
 //  watcher dir info 
-function watcherCall(arg){
+function watcherCall(arg, gubun, groupNm, userNm){
   return new Promise(function(resolve, reject){
-		console.log("watcher call===================");
 		var headersOpt = {  
   	  "content-type": "application/json",
 		};
 		request({
   	  	method:'post',
   	    url:'http://127.0.0.1:3001/watcher',
-  	    form: {'userUuid':  arg}, 
+  	    form: {'userUuid':  arg, 'gubun': gubun, "groupIndexNm": groupNm, "userNm": userNm}, 
   	    headers: headersOpt,
   	    json: true,
   	  }, function (error, response, body) {  
@@ -401,12 +395,21 @@ function watcherCall(arg){
 
 
 //	watcher dir info 
-function create_settingFile(arg){
+function create_settingFile(arg, gubun){
   return new Promise(function(resolve, reject){
+		var fileName = "";
+		if( gubun == "PR"){
+			fileName = "pr_finder_config";
+		}else{
+			fileName = "finder_config";
+		}
     var osType = require('os');
-    var fileDir  = osType.homedir() + '/.config/hamonikr_finder/finder_config';
+    var fileDir  = osType.homedir() + '/.config/hamonikr_finder/' + fileName;
+    //var fileDir  = osType.homedir() + '/.config/hamonikr_finder/finder_config';
 
-    if (!fs.existsSync(fileDir)) {
+console.log("arg================="+ arg);
+
+//    if (!fs.existsSync(fileDir)) {
       fs.writeFile(fileDir, arg, (err) => {
         if(err){
           reject("error");
@@ -414,9 +417,9 @@ function create_settingFile(arg){
         }
          resolve(arg);
       });
-    }else{
-       resolve(arg);
-    }
+//    }else{
+//       resolve(arg);
+//    }
   });
 }
 
