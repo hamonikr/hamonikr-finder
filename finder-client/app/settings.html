@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html>
+
+<title>Hamonikr</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="assets/css/w3.css" />
+    <!-- link rel="stylesheet" href="assets/css/chrome.custom.scrollbar.css" /-->
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+		<!--script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script-->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<link href="http://cdn.jsdelivr.net/gh/joungkyun/font-d2coding/d2coding.css" rel="stylesheet" type="text/css"/>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<!--style media="" data-href="https://use.fontawesome.com/releases/v5.0.10/css/all.css"></style-->
+
+
+		<style>
+.dragLayer {
+  -ms-overflow-style: scrollbar;
+  -webkit-app-region:drag;
+}
+.noneDragLayer {
+	-webkit-app-region: no-drag;
+}		
+//@import url("https://fonts.googleapis.com/css?family=Nunito:400,900|Montserrat|Roboto");
+body {
+  /background: linear-gradient(to right, #3FB6A8, #7ED386);
+}
+
+.container {
+  background: #FFFFFF;
+  width: 500px;
+  height: 60px;
+  /*margin: 0 auto;*/
+  position: relative;
+  /*margin-top: 6%;*/
+  box-shadow: 2px 5px 20px rgba(119, 119, 119, 0.5);
+}
+
+.logo {
+  float: right;
+  margin-right: 12px;
+  margin-top: 12px;
+  color: #3DBB3D;
+  font-weight: 900;
+  font-size: 1.5em;
+  letter-spacing: 1px;
+}
+
+.CTA {
+  width: 80px;
+  height: 40px;
+  right: -20px;
+  bottom: 0;
+  margin-bottom: 90px;
+  position: absolute;
+  z-index: 1;
+  background: #7ED386;
+  font-size: 1em;
+  transform: rotate(-90deg);
+  transition: all .5s ease-in-out;
+  cursor: pointer;
+}
+.CTA h1 {
+  color: #FFFFFF;
+  margin-top: 10px;
+  margin-left: 9px;
+}
+.CTA:hover {
+  background: #3FB6A8;
+  transform: scale(1.1);
+}
+
+.leftbox {
+  float: left;
+  top: -5%;
+  left: 5%;
+  position: absolute;
+ /* width: 28%;*/
+  height: 110%;
+  background: #7ED386;
+  box-shadow: 3px 3px 10px rgba(119, 119, 119, 0.5);
+}
+
+nav a {
+  list-style: none;
+  padding: 20px;
+  color: #FFFFFF;
+  font-size: 1.1em;
+  display: block;
+  transition: all .3s ease-in-out;
+}
+nav a:hover {
+  color: #3FB6A8;
+  transform: scale(1.2);
+  cursor: pointer;
+}
+nav a:first-child {
+  margin-top: 7px;
+}
+
+.active {
+  color: #3FB6A8;
+}
+
+.rightbox {
+  /*float: right;*/
+	margin-left: 25%;
+  width: 60%;
+ /* height: 100%;*/
+}
+
+.profile, .payment, .subscription, .privacy, .settings {
+  transition: opacity .5s ease-in;
+  position: absolute;
+  width: 70%;
+}
+
+h1 {
+  color: #7ED386;
+  font-size: 1em;
+  margin-top: 40px;
+}
+
+h2 {
+  color: #777777;
+  width: 80%;
+  text-transform: uppercase;
+  font-size: 8px;
+  letter-spacing: 1px;
+  margin-left: 2px;
+}
+
+p {
+  border-width: 1px;
+  border-style: solid;
+  border-image: linear-gradient(to right, #3FB6A8, rgba(126, 211, 134, 0.5)) 1 0%;
+  border-top: 0;
+  width: 100%;
+  font-size: .7em;
+  padding: 10px 0px; 
+  color: #070707;
+}
+
+span {
+  font-size: .5em;
+  color: #777777;
+}
+
+.btn {
+ /* float: right;*/
+  text-transform: uppercase;
+  /*font-size: 10px;*/
+	/*font-size: 1rem;*/
+  border: none;
+  color: #3FB6A8;
+	padding: 5px;
+}
+
+.btn:hover {
+  text-decoration: underline;
+  font-weight: 900;
+}
+input:focus, textarea:focus, select:focus{
+        outline: none;
+    }
+input {
+  border: 0px solid #dddddd;
+  padding: 5px;
+  margin: 0;
+	font-size: 1rem;
+}
+
+.privacy h2 {
+  margin-top: 25px;
+}
+
+.settings h2 {
+  margin-top: 25px;
+}
+
+.noshow {
+  opacity: 0;
+}
+
+
+		</style>
+
+
+
+
+<body>
+
+<div class="container dragLayer">
+ 
+<!-- left layer -->
+  <div class="leftbox">
+    <nav>
+      <a href="javascript:;" id="search" class="active noneDragLayer"><i class="fa fa-search">&nbsp;검색&nbsp;</i></a>
+      <a href="javascript:;" id="profile" class="noshow noneDragLayer" style="display:none;"><i class="fa fa-user">정보설정</i></a>
+      <a href="javascript:;" id="payment" class="noshow noneDragLayer" style="display:none;"><i class="fa fa-folder-open">폴더설정</i></a>
+    </nav>
+  </div>
+
+
+<!-- right layer -->
+  <div class="rightbox">
+
+		<div id="BodyId" class="" style="width: 370px;">
+				<a id="closeBtn" class="w3-right noneDragLayer" ><i class="fa fa-window-close" style="font-size:24px"></i></a>
+		</div>
+		<div id="searchBodyId" class="search" style="width: 370px;">
+			<p>
+				<input type="text" id="searchInput" placeholder="Enter Search Keyword" class="noneDragLayer"></input><button class="btn">Search</button>
+				<a id="settings" class="active search w3-right noneDragLayer" ><i class="fa fa-gear fa-spin" style="font-size:24px"></i></a>
+			</p>
+			<div id="esSearchResultTbody" style="display:none;" class="noneDragLayer"></div>
+    </div>
+
+    <div class="profile noshow" style="display:none;">
+      <h1>Personal Info</h1>
+      <h2>사용자명 </h2>
+			<p><input type="text" id="userId" placeholder="Enter user name or user id" class="noneDragLayer"></input></p>
+			
+			<h2>그룹명 </h2>
+			<p><input type="text" id="groupNm" placeholder="Enter Group Name" class="noneDragLayer"></input></p>
+			<p><button class="btn noneDragLayer" onClick="setProfile();">확인</button></p>
+    </div>
+    
+    <div class="payment noshow" style="display:none;">
+      <h1>색인폴더 지정.</h1>
+      <h2>-개인 폴더 지정.</h2>
+			<div class="w3-container noneDragLayer">
+			  <div id="pre_set" style="display:none;font-size: 13px;" last-id="0">
+			    <div>
+			      <div class="delete_box w3-right">
+			        <button class="btn" onclick="delete_info(this)" >삭제</button>
+			      </div>
+			      <div class="selection_content" style="overflow: auto;font-size: 13px;"></div>
+			    </div>
+			  </div>
+			  <div id="field" style="max-height:770px; overflow:auto; width: 300px;"></div>
+			</div>
+			<p>
+      <button id="browse-directory" class="cls_browse-directory btn noneDragLayer">+ Add Folder</button>
+      <button id="browse-directory-save" class="btn noneDragLayer" onclick="dirSettingsSave();">∴ Save  </button>
+      </p>
+			
+			<h2>-공유 폴더 지정.</h2>
+      <div class="w3-container noneDragLayer">
+        <div id="public_pre_set" style="display:none;font-size: 13px;" last-id="0">
+          <div>
+            <div class="public_delete_box w3-right">
+              <button class="btn" onclick="public_delete_info(this)" >삭제</button>
+            </div>
+            <div class="public_selection_content" style="overflow: auto;font-size: 13px;"></div>
+          </div>
+        </div>
+        <div id="public_field" style="max-height:770px; overflow:auto; width: 300px;"></div>
+      </div>
+			<p>
+			<button id="public_browse-directory" class="cls_browse-directory btn noneDragLayer">+ Add Folder</button>
+			<button id="browse-directory-save" class="btn noneDragLayer" onclick="public_dirSettingsSave();">∴ Save  </button>
+			</p>
+
+    </div>
+
+  </div>
+</div>
+
+
+<script type="text/javascript">
+const {ipcRenderer} = require('electron');
+/*active button class onclick*/
+$('nav a').click(function(e) {
+  e.preventDefault();
+  $('nav a').removeClass('active');
+  $(this).addClass('active');
+
+  if(this.id === !'payment'){
+    $('.payment').addClass('noshow');
+  }
+  else if(this.id === 'payment') {
+    $('.payment').removeClass('noshow');
+    $('.rightbox').children().not('.payment').addClass('noshow');
+		$('.profile').hide();
+		$('.payment').show();
+		$('#searchBodyId').height("1px");
+		$('#BodyId').removeClass('noshow');
+
+		fn_file_index_load();
+
+
+  }
+  else if (this.id === 'profile') {
+    $('.profile').removeClass('noshow');
+    $('.rightbox').children().not('.profile').addClass('noshow');
+		$('.payment').hide();
+		$('.profile').show();
+		$('#searchBodyId').height("1px");
+		$('#BodyId').removeClass('noshow');
+		fn_load_profile();
+  }
+  else if(this.id === 'search') {
+		ipcRenderer.send('resize-me-please', "initLayer");
+		$('#search').css('margin-top','0px');
+    $('.search').removeClass('noshow');
+    $('#payment').addClass('noshow');
+    $('#profile').addClass('noshow');
+		
+  	$('.container').height('50px');
+  	$('.container').width('500px');
+		$('.rightbox').css('margin-left','25%');
+    $('.rightbox').children().not('.search').addClass('noshow');
+    
+		$('#profile').hide();
+	  $('.profile').hide();
+	  $('#payment').hide();
+	  $('.payment').hide();
+		
+		$('#searchBodyId').css('height', '');
+		$('#esSearchResultTbody').addClass('noshow');
+	  $('#esSearchResultTbody').hide();
+    $('#BodyId').removeClass('noshow');
+  }
+});
+
+
+$('#settings').click(function(e) {
+	layerChange();
+	$('#search').removeClass('noshow active');
+	$('#profile').addClass('active');
+	$('.rightbox').children().not('.profile').addClass('noshow');
+	$('.profile').show();
+	$('#searchBodyId').height("1px");
+
+	$('#esSearchResultTbody').addClass('noshow');
+  $('#esSearchResultTbody').hide();
+	$('#BodyId').removeClass('noshow');
+
+	fn_load_profile();
+
+});
+
+function layerChange(){
+	ipcRenderer.send('resize-me-please', "viewLayer");
+
+  $('.container').height('500px');
+  $('.container').width('550px');
+  $('.rightbox').css('margin-left','30%');
+  $('#payment').removeClass('noshow');
+  $('#profile').removeClass('noshow');
+	$('#searchBodyId').css('height', '');
+  $('#profile').show();
+  $('#payment').show();
+  $('.profile').removeClass('noshow');
+}
+
+$("#searchInput").keydown(function(key) {
+    if (key.keyCode == 13) {
+      console.log("aa---" + $("#searchInput").val());
+			
+			ipcRenderer.send('resize-me-please', "viewLayer");
+
+			$('.container').fadeOut(300);
+      $('.container').fadeIn(300);
+
+			$('.container').height('500px');
+			$('.container').width('550px');
+			$('#esSearchResultTbody').removeClass('noshow');
+			$('#esSearchResultTbody').show();
+			$('#search').css('margin-top','7px');
+
+			var fs = require("fs");
+			var osType = require('os');
+		  var dirpath = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
+			var uuidData = fs.readFileSync(dirpath, 'utf8');
+
+      var unirest = require('unirest');
+      unirest.post('http://127.0.0.1:3001/api/es')
+        .header('Accept', 'application/json')
+        .send({ "id": $("#searchInput").val(), "userUuid":uuidData })
+        .end(function (response) {
+          var innerData = "";
+          var esResultObj = response.body;
+          $("#esSearchResultTbody").empty();
+          if( typeof esResultObj == "undefined" ){
+            innerData += '<div class="w3-panel w3-border-left w3-pale-red w3-border-red" style="margin: 10px 0;">';
+            innerData += '<span style="font-size: 18px;">검색결과가 없습니다.</span><br>';
+            innerData += '</div>';
+            $("#esSearchResultTbody").append(innerData);
+          }else {
+            console.log(esResultObj.message);
+
+            if( typeof esResultObj.message == "undefined" ){
+              innerData += '<div class="w3-panel w3-border-left w3-pale-red w3-border-red" style="margin: 10px 0;">';
+              innerData += '<span style="font-size: 18px;">검색결과가 없습니다.</span><br>';
+              innerData += '</div>';
+            } else {
+              var jsontext = esResultObj.message;
+              var contact = JSON.parse(jsontext);
+              if( contact.length > 0 ){
+              	$("#esSearchResult").show();
+								
+								var fileSharing = "";
+                for (var i = 0; i < contact.length; i++) {
+                  console.log(contact[i].filename + " : " + contact[i].extension +"pr-pv :" + contact[i].fileSharing +"owner is " + contact[i].owner_nm);
+									if( contact[i].fileSharing == "PR"){
+										fileSharing = "공유파일 - "+contact[i].owner_nm;
+									}else{
+										fileSharing = "개인파일";
+									}
+                  innerData += '<div class="w3-panel w3-border-left w3-pale-red w3-border-red" style="margin: 10px 0;">';
+                  innerData += '<span style="font-size: 18px;">'+contact[i].filename+' ['+fileSharing+']'+'</span><br>';
+                  innerData += '<span class="openFileTag" data-value="'+contact[i].filepath+'">'+contact[i].filepath+'</span>';
+                  innerData += '</div>';
+                }
+              }
+            }
+            $("#esSearchResultTbody").append(innerData);
+          }
+        });
+    }
+  });
+
+
+	
+function addconfige_info(x) {
+
+    var pre_set = document.getElementById('pre_set');
+    var fieldid = pre_set.getAttribute('last-id');
+    pre_set.setAttribute('last-id',Number(fieldid) + 1 );
+
+    // 복사할 div 생성
+    var div = document.createElement('div');
+    div.innerHTML = pre_set.innerHTML;
+    div.id = 'field-data-' + fieldid;
+    var temp = div.getElementsByClassName('selection_content')[0];
+    temp.innerText = x ;
+    var deleteBox = div.getElementsByClassName('delete_box')[0];
+    deleteBox.setAttribute('target',div.id);
+    document.getElementById('field').appendChild(div);
+}
+
+function delete_info(obj) {
+   var target = obj.parentNode.getAttribute('target');
+   var field = document.getElementById(target);
+    document.getElementById('field').removeChild(field);
+
+		if( $("#field").children().length == 0){
+    	document.getElementById('pre_set').setAttribute('last-id', 0);
+  	}
+}
+
+function dirSettingsSave(){
+	//if( $("#field").children().length == 0){
+  //  fn_alert("색인대상의 폴더를 등록해주세요.");
+  //  return false;
+  //}
+
+  var tempDirAddress = "";
+  if ( $("#field").children().length != 0 ){
+    for( var i=0; i<$("#field").children().length; i++){
+      console.log(i +"==="+ $("#field-data-"+i).find(".selection_content").text() );
+      tempDirAddress += $("#field-data-"+i).find(".selection_content").text() +"\n";
+    }
+		const {ipcRenderer} = require('electron');
+	  ipcRenderer.send('save-dir-path', tempDirAddress, "true", "PV", "" , $("#userId").val());
+  }else{
+		ipcRenderer.send('save-dir-path', tempDirAddress, "false", "PV", "", $("#userId").val());
+	}
+}
+
+
+<!-- public -->
+function public_addconfige_info(x) {
+
+    var pre_set = document.getElementById('public_pre_set');
+    var fieldid = pre_set.getAttribute('last-id');
+    pre_set.setAttribute('last-id',Number(fieldid) + 1 );
+
+    // 복사할 div 생성
+    var div = document.createElement('div');
+    div.innerHTML = pre_set.innerHTML;
+    div.id = 'public_field-data-' + fieldid;
+    var temp = div.getElementsByClassName('selection_content')[0];
+    temp.innerText = x ;
+    var deleteBox = div.getElementsByClassName('public_delete_box')[0];
+    deleteBox.setAttribute('target',div.id);
+    document.getElementById('public_field').appendChild(div);
+}
+
+function public_delete_info(obj) {
+   var target = obj.parentNode.getAttribute('target');
+	 console.log("ta==="+ target);
+   var field = document.getElementById(target);
+	 console.log("fi===="+ field);
+    document.getElementById('public_field').removeChild(field);
+
+    if( $("#public_field").children().length == 0){
+      document.getElementById('public_pre_set').setAttribute('last-id', 0);
+    }
+}
+
+function public_dirSettingsSave(){
+
+	if( $("#groupNm").val().length == 0){
+		fn_alert("정보설정 매뉴에서 그룹을 등록해주세요.");
+		return false;
+	}
+	if( $("#public_field").children().length == 0){
+    fn_alert("공유할 폴더를 등록해주세요.");
+    return false;
+  }
+
+  var tempDirAddress = "";
+  if ( $("#public_field").children().length != 0 ){
+    for( var i=0; i<$("#public_field").children().length; i++){
+      console.log(i +"==="+ $("#public_field-data-"+i).find(".public_selection_content").text() );
+      tempDirAddress += $("#public_field-data-"+i).find(".public_selection_content").text() +"\n";
+    }
+    const {ipcRenderer} = require('electron');
+    ipcRenderer.send('save-dir-path', tempDirAddress, "true", "PR", $("#groupNm").val(), $("#userId").val());
+  }else{
+    ipcRenderer.send('save-dir-path', tempDirAddress, "false", "PR", $("#groupNm").val(), $("#userId").val());
+  }
+}
+
+
+function setProfile(){
+	var unirest = require('unirest');
+	var fs = require("fs");
+  var osType = require('os');
+  var dirpath = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
+  var uuidData = fs.readFileSync(dirpath, 'utf8');
+
+  unirest.post('http://127.0.0.1:3001/profile')
+  	.header('Accept', 'application/json')
+    .send({ "userId": $("#userId").val(), "groupNm": $("#groupNm").val(), "userUuid": uuidData })
+    .end(function (response) {
+    	console.log(response.body);
+	 });
+}
+function fn_file_index_load(){
+	const {ipcRenderer} = require('electron');
+	ipcRenderer.send('openConfigFile', () => {
+	  console.log("Event sent.");
+	})
+	
+	ipcRenderer.on('settingData_arr', (event, data) => {
+	  var settingData_arr = data.split('\n');
+	  if( settingData_arr.length != 0 ){
+	    for(var i=0; i<settingData_arr.length -1 ;++i){
+	      addconfige_info(settingData_arr[i]);
+	    }
+	  }
+	})
+}
+
+function fn_load_profile(){
+	var unirest = require('unirest');
+  var fs = require("fs");
+  var osType = require('os');
+  var dirpath = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
+  var uuidData = fs.readFileSync(dirpath, 'utf8');
+  
+	unirest.post('http://127.0.0.1:3001/select')
+    .header('Accept', 'application/json')
+    .send({ "userUuid": uuidData })
+    .end(function (response) {
+			$("#groupNm").val(response.body.group_nm);
+			$("#userId").val(response.body.user_nm);
+   });	
+}
+function fn_alert(arg){
+	const Dialogs = require('dialogs')
+  const dialogs = Dialogs()
+  dialogs.alert(arg, ok => {
+    console.log('alert', ok)
+    //dialogs.confirm('ok?', ok => {
+    //  console.log('confirm', ok)
+    //  dialogs.prompt('username', 'joe.smith@gmail.com', ok => {
+    //    console.log('prompt with default', ok)
+    //    dialogs.prompt('username', ok => {
+    //      console.log('prompt', ok)
+    //    })
+    //  })
+    //})
+  });
+	 $('.dialog-widget').addClass('noneDragLayer');
+}
+</script>
+<script>require('./renderer.js')</script>
+
+</body>
+</html> 
+
