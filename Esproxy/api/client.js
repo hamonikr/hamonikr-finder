@@ -9,7 +9,9 @@ const esClient = new es.Client({
 //module.exports = esClient;
 const searchDoc = async function(indexName, mappingType, dataload){
     return await esClient.search({
-        index: indexName,
+				index: ['3ocmlf075ak2vfatq8k2vfatq7', 'test_gruop_a'],
+//				index: ['test_gruop_a'],
+ //       index: indexName,
 //        type: mappingType,
         body: dataload
     });

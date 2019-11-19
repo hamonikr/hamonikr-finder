@@ -12,7 +12,8 @@ const rp = require('request-promise')
 const esClient = require('../client');
 const searchDoc = async function(indexName, mappingType, payload){
     return await esClient.search({
-        index: indexName,
+        index: ['3ocmlf075ak2vfatq8k2vfatq7', 'test_gruop_a'],
+        //index: [indexName],
 //        type: mappingType,
         body: payload
     });

@@ -188,7 +188,7 @@ console.log("======================================================aaaaaaaaaaaaa
 				});
       };
       //var arg = "{\"external\":{\"description\":\""+path +" \"}}";
-			var arg = "{\"external\":{\"description\":\""+path +" \", \"FileSharing\":\""+FileSharing+"\"}}";
+			var arg = "{\"external\":{\"description\":\""+path +" \", \"FileSharing\":\""+FileSharing+"\", \"owner_uuid\":\""+userIndexUUID+"\", \"owner_nm\":\""+userIndexUUID+"\"}}";
       fs.writeFileSync(process.cwd() + "/tagtest" + runningCnt +".txt", arg, 'utf8');
       await fsrestUpload(path).then(  
         fs.unlink(process.cwd() + "/tagtest" + runningCnt +".txt", (err) => {

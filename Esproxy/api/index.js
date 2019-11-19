@@ -5,34 +5,25 @@ const rp = require('request-promise')
 const esClient = require('./client');
 
 
-//const searchDoc = async function(indexName, mappingType, dataload){
-//    return await esClient.search({
-//        index: indexName,
-////        type: mappingType,
-//        body: dataload
-//    });
-//}
-//
-//module.exports = searchDoc;
 
 async function fn_EsQuery(keyword, indexName){
   var retVal="";
-  //const body = {
-  //  "query": {
-  //      "match" : {
-  //          "content" : "*"+keyword+"*"
-  //      }
-  //  }
-  //  //,"_source": [ "content", "file", "path", "external" ]
-  //}
   const body = {
-      query: {
-          query_string: {
-            query: "*"+keyword+"*" //"한글",
-           // , default_field: "content"
-          }
-      }
+    "query": {
+        "match" : {
+            "content" : "*"+keyword+"*"
+        }
+    }
+    //,"_source": [ "content", "file", "path", "external" ]
   }
+  //const body = {
+  //    query: {
+  //        query_string: {
+  //          query: "*"+keyword+"*" //"한글",
+  //         // , default_field: "content"
+  //        }
+  //    }
+  //}
   try {
 	//	esClient.initIndex
 		const resp = await esClient.searchDoc(indexName, '', body);
@@ -44,10 +35,18 @@ async function fn_EsQuery(keyword, indexName){
     resp.hits.hits.forEach(function(hit){
     	console.log(hit._source.file.filename);
       var dataJson = new Object();
-      //retVal += hit._source.file.filename+"\n=="+hit._source.file.extension+"\n=="+hit._source.external.description;
 			dataJson.filename = hit._source.file.filename;
 			dataJson.extension = hit._source.file.extension;
 			dataJson.filepath = hit._source.external.description;
+		
+			dataJson.fileSharing = hit._source.external.FileSharing;
+			dataJson.owner_nm = hit._source.external.owner_nm;
+
+
+			console.log("1===>"+ hit._source.external.description);
+			console.log("2===>"+ hit._source.external.FileSharing);
+			console.log("3===>"+ hit._source.external.owner_uuid);
+			console.log("4===>"+ hit._source.external.owner_nm);
 
 			dataJsonArray.push(dataJson);
     })
