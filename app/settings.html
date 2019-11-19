@@ -401,11 +401,17 @@ $("#searchInput").keydown(function(key) {
               var contact = JSON.parse(jsontext);
               if( contact.length > 0 ){
               	$("#esSearchResult").show();
-
+								
+								var fileSharing = "";
                 for (var i = 0; i < contact.length; i++) {
-                  console.log(contact[i].filename + " : " + contact[i].extension );
+                  console.log(contact[i].filename + " : " + contact[i].extension +"pr-pv :" + contact[i].fileSharing +"owner is " + contact[i].owner_nm);
+									if( contact[i].fileSharing == "PR"){
+										fileSharing = "공유파일 - "+contact[i].owner_nm;
+									}else{
+										fileSharing = "개인파일";
+									}
                   innerData += '<div class="w3-panel w3-border-left w3-pale-red w3-border-red" style="margin: 10px 0;">';
-                  innerData += '<span style="font-size: 18px;">'+contact[i].filename+'</span><br>';
+                  innerData += '<span style="font-size: 18px;">'+contact[i].filename+' ['+fileSharing+']'+'</span><br>';
                   innerData += '<span class="openFileTag" data-value="'+contact[i].filepath+'">'+contact[i].filepath+'</span>';
                   innerData += '</div>';
                 }
