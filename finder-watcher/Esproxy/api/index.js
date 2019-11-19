@@ -8,27 +8,27 @@ const esClient = require('./client');
 
 async function fn_EsQuery(keyword, indexName){
   var retVal="";
-  const body = {
-    "query": {
-        "match" : {
-            "content" : "*"+keyword+"*"
-        }
-    }
-    //,"_source": [ "content", "file", "path", "external" ]
-  }
   //const body = {
-  //    query: {
-  //        query_string: {
-  //          query: "*"+keyword+"*" //"한글",
-  //         // , default_field: "content"
-  //        }
-  //    }
+  //  "query": {
+  //      "match" : {
+  //          "content" : "*"+keyword+"*"
+  //      }
+  //  }
+  //  //,"_source": [ "content", "file", "path", "external" ]
   //}
+  const body = {
+	size: 1000,
+      query: {
+          query_string: {
+            query: "*"+keyword+"*" //"한글",
+           // , default_field: "content"
+          }
+      }
+  }
   try {
 	//	esClient.initIndex
 		const resp = await esClient.searchDoc(indexName, '', body);
-    console.log("body========================+" + JSON.stringify(body));
-    console.log(resp);
+    //console.log("body========================+" + JSON.stringify(body));
 
 		var dataJsonArray = new Array();
 			

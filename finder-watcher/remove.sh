@@ -2,7 +2,7 @@
 
 rm -fr *.txt
 
-curl -XDELETE http://192.168.0.56:9200/*
+curl -XDELETE http://192.168.0.55:9200/*
 echo ""
 sleep 1
 

@@ -7,7 +7,7 @@ const genericPool = require('generic-pool')
 const muri = require('muri')
 
 const defaultOptions = {
-  host: '192.168.0.56',
+  host: '192.168.0.55',
   port: 27017,
   db: 'test_app_db',
   authSource: 'admin',
