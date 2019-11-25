@@ -358,7 +358,7 @@ function layerChange(){
 
 $("#searchInput").keydown(function(key) {
     if (key.keyCode == 13) {
-      console.log("aa---" + $("#searchInput").val());
+      //console.log("aa---" + $("#searchInput").val());
 			
 			ipcRenderer.send('resize-me-please', "viewLayer");
 
@@ -403,8 +403,8 @@ $("#searchInput").keydown(function(key) {
               if( contact.length > 0 ){
               	$("#esSearchResult").show();
 
-				  innerData += "<div id=timechk>"+getDateTime()+"</div>";
-				  innerData += "<div id=endTimechk>"+getDateTime()+"</div>";
+				  //innerData += "<div id=timechk>"+getDateTime()+"</div>";
+				  //innerData += "<div id=endTimechk>"+getDateTime()+"</div>";
 								
 								var fileSharing = "";
                 for (var i = 0; i < contact.length; i++) {
@@ -423,11 +423,12 @@ $("#searchInput").keydown(function(key) {
               }
             }
             $("#esSearchResultTbody").append(innerData);
+							  console.log("end time is : " + getDateTime());
           }
         });
 
-	console.log("end time is : " + getDateTime());
-	$("#endTimechk").innerHTML(getDateTime());
+//	console.log("end time is eee: " + getDateTime());
+//	$("#endTimechk").innerHTML(getDateTime());
     }
   });
 
@@ -610,7 +611,7 @@ function getDateTime() {
     month = (month < 10 ? "0" : "") + month;
     var day  = date.getDate();
     day = (day < 10 ? "0" : "") + day;
-    return year + ":" + month + ":" + day + ":" + hour + ":" + min + ":" + sec;
+    return year + ":" + month + ":" + day + ":" + hour + ":" + min + ":" + sec +"  " + date.getMilliseconds();
 }
 
 

@@ -9,7 +9,42 @@ const axios = require('axios');
 const FormData = require('form-data');
 const concat = require("concat-stream");
 
+var extend          = require('node.extend'),
+	globule         = require('globule'),
+	path            = require('path'),
+  EventEmitter    = require('events').EventEmitter;
+  
+
+const delay = require('delay');
+const sleep = delay => new Promise(resolve => { setTimeout(resolve, delay) }, delay)
+const moment = require("moment");
+
+var https = require('https');
+var http = require('http');
+
+https.globalAgent.maxSockets = 50000;
+http.globalAgent.maxSockets = 50000;
+let chkLimitCnt = 0;
 var searchPathAry = new Array();
+
+
+
+let startTime;
+let endTime;
+let second = 1000 * 60;
+let fmt1 = 'YYYY.MM.DD HH:mm:ss.SSSSSSS';
+let  nowMoment = moment(new Date()).format(fmt1); //Date 객체를 파라미터로 넣기
+
+function fileIndexingDel(){
+	var osType = require('os');
+  var fileDir  = osType.homedir() + '/.config/hamonikr_finder/indexingFile';
+	 if (fs.existsSync(fileDir)) {
+		fs.unlinkSync(fileDir);
+	}
+  startTime = nowMoment;
+}
+
+
 function getSearchPath(){
 
 	var osType = require('os');
@@ -23,7 +58,7 @@ function getSearchPath(){
 }
 
 
-const ES_UPLOAD_PATH = 'http://192.168.0.55:8081/_upload'
+const ES_UPLOAD_PATH = 'http://192.168.0.56:8081/_upload'
 const DB_FILE = './db/files.db';
 //const FILE_FOLDER = '/home/rnd/test-file';
 const FILE_FOLDER = searchPathAry;
@@ -60,17 +95,6 @@ const initializeDB = () => {
 	});
 }
 
-const maintest = async (userUuid) => {
-	const watcher = chokidar.watch(FILE_FOLDER, {
-    ignored: /(^|[\/\\])\../, // ignore dotfiles
-    persistent: true
-  });
-
-	watcher.on('ready', function() {
-    console.log('Newly watched paths:', watcher.getWatched());
-  });
-
-}
 
 const main = async (userUuid) => {
 
@@ -97,160 +121,211 @@ const main = async (userUuid) => {
   
   
 
+  var batchFiles  = [];
+  var batchTimer  = null;
+
   const watcher = chokidar.watch(FILE_FOLDER, {
     ignored: /(^|[\/\\])\../, // ignore dotfiles
-    persistent: true
+    persistent: true,
+    ignoreInitial: false,
+    followSymlinks: true,
+    //cwd: '.',
+    disableGlobbing: false,
+
+    usePolling: false,
+    interval: 100,
+    binaryInterval: 300,
+    alwaysStat: false,
+    depth: 99,
+    awaitWriteFinish: {
+      stabilityThreshold: 10000,
+      pollInterval: 1000
+    },
+
+    ignorePermissionErrors: false,
+    atomic: true
   });
 
-  //watcher.on('ready', function() {
-  //  console.log('Newly watched paths:', watcher.getWatched());
-  //});
+  const log = console.log.bind(console);
+  // watcher.on('add', path => log(`File ${path} has been added`));
 
-  let runningCnt = 0;
-  watcher.on('all', async (event, path) => {
-  	// console.log("path====> "+ path.split("."));
-
-
-    const asyncQuery = (query) => {
-      return new Promise((resolve, reject) => {
-        // console.log(`${query}`);
-        db.all(query, [], (err, rows) => {
-          if (err) {
-            return reject(err);
-          }
-  
-          // console.log(`rows.length = ${rows.length}`);
-
-          (rows.length > 0) ? resolve(true) : resolve(false);
-        });
-      });
-    };
-    
-    // console.log(event, path);
-    if (event == 'addDir') {
-      console.log(`Ignore addDir ${path}`);
-    }
-
-    if (event == 'unlinkDir') {
-      console.log(`Ignore unlinkDir ${path}`);
-    }
-    
-    if (event == 'add') {
-      runningCnt++;
-			const createTagFile = async (path) => {
-    	  return new Promise( async (resolve, reject) => {
-    	    var arg = "{\"external\":{\"description\":\""+path +" \"}}";
-          fs.writeFileSync(process.cwd() + "/tagtest" + runningCnt +".txt", arg, 'utf8');
-        });
-      };
-
-      const fsrestUpload = (path) => {
-				return new Promise((resolve, reject) => {
-
-console.log("======================================================aaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-          const formData = {
-            //index: 'myindex',
-            index: userIndexUUID,
-            file: fs.createReadStream(path),
-            tags: fs.createReadStream("tagtest" + runningCnt +".txt")
-          };
-          request.post({url: ES_UPLOAD_PATH, formData: formData}, async (err, response, body) => {
-            if (err) {
-							console.log("error==================="+err);
-							return reject(err);
-						}
-            
+  async function doRequest(formData) {
+    return new Promise(function (resolve, reject) {
+      
+      request.post({url: ES_UPLOAD_PATH, formData: formData}, async (err, response, body) => {
+          if (!err && response.statusCode == 200) {
             const result = JSON.parse(body);
-						console.log("result========================="+ result);
             if (result.ok == false) {
               return console.log('upload failed');
             }
-
-            // console.log('업로드 한 파일의 hash 값을 local DB 에 저장한다.');
-            const addQuery = `insert into filelist(local_path, url) values ('${path}', '${result.url}')`;
-            const res = await asyncQuery(addQuery);
-
-            console.log('DB insert 되었는지 확인');
-            const query = `SELECT * FROM filelist WHERE local_path = '${path}'`;
-            //const found = await asyncFind(query);
-            const found = await asyncQuery(query);
-            if (err) {
-              return console.error("error indsert === "+ err.message);
-            }else{
-              
-              
-
-            }
-            // runningCnt = 0;
-            resolve(runningCnt);
-            //console.log('post resolved');
-          });
-				});
-      };
-      //var arg = "{\"external\":{\"description\":\""+path +" \"}}";
-			var arg = "{\"external\":{\"description\":\""+path +" \", \"FileSharing\":\""+FileSharing+"\", \"owner_uuid\":\""+userIndexUUID+"\", \"owner_nm\":\""+userIndexUUID+"\"}}";
-      fs.writeFileSync(process.cwd() + "/tagtest" + runningCnt +".txt", arg, 'utf8');
-      await fsrestUpload(path).then(  
-        fs.unlink(process.cwd() + "/tagtest" + runningCnt +".txt", (err) => {
-          if (err) {
-            console.error(err)
-            return
+            resolve(body);
+          } else {
+           return  reject(err);
           }
-          //file removed
-        })
-      );
-      console.log("aaaaaaaaaaaaaaaaaaaaaaaaaa");
-      runningCnt = 0;        
-      
-    }
-    // console.log("tttaaa==="+ runningCnt);
-    if (event == 'change') {
-      console.log('파일이 변경된 경우');
-      const query = `SELECT * FROM filelist WHERE local_path = '${path}'`;
-      const found = await asyncQuery(query);
+      });
+    });
+  }
 
-      if (found == false) {
-        return console.log(`Local DB 에서 파일을 찾을 수 없음.`);
-      }
+  async function processArray(array) {
+
+    // array.forEach(async (item, itemcnt) => {
+    for( const item of array ){
+      const formData = {
+        index: userIndexUUID,
+        file: fs.createReadStream(item), //fs.readFileSync(path, 'utf8'), 
+        tags: "{\"external\":{\"description\":\""+item +" \", \"FileSharing\":\""+FileSharing+"\", \"owner_uuid\":\""+userIndexUUID+"\", \"owner_nm\":\""+userIndexUUID+"\"}}" //fs.createReadStream("tagtest" + runningCnt +".txt")
+      };
+      const options = "";
+
+      let response = await promisifiedRequest(formData, options);
       
-      // console.log(`여기서 ES 서버에 파일을 다시 업로드 할 것... ${path}`);
-      request.post({url: ES_UPLOAD_PATH, formData: {file: fs.createReadStream(path)}}, async (err, response, body) => {
+      console.log(  "===========userIndexUUID========>"+userIndexUUID);
+      console.log(  "===========00========>"+item);
+      console.log( "===========11========>"+JSON.stringify(response.headers));
+      console.log( "==========22=========>"+JSON.stringify(response));
+      console.log( "==========22=========>"+response.body);
+
+      const result = JSON.parse(response.body);
+      if (result.ok == false) {
+        return console.log('upload failed');
+        // return reject(err);
+      }
+      // console.log('업로드 한 파일의 hash 값을 local DB 에 저장한다.');
+      const addQuery = `insert into filelist(local_path, url) values ('${item}', '${result.url}')`;
+      const resAddQuery = await asyncQuery(addQuery);
+      
+      // const selectQuery = `SELECT * FROM filelist WHERE local_path = '${item}'`;
+      // const found = await asyncQuery(selectQuery);
+
+    }
+  }
+
+  const promisifiedRequest = function(formData, options) {
+    return new Promise((resolve,reject) => {
+      request.post({url: ES_UPLOAD_PATH, formData: formData, gzip:true}, async (error, response, body) => {
+        if (response) {
+          return resolve(response);
+        }
+        if (error) {
+          return reject(error);
+        }
+      });
+    });
+  };
+
+
+  function watcherBatch() {
+    watcherChange('change', batchFiles);
+    batchFiles = [];
+  }
+
+  function watcherChange(event, path) {
+    processArray(path);
+	}
+
+  const asyncQuery = (query) => {
+    return new Promise((resolve, reject) => {
+      // console.log(`${query}`);
+      db.all(query, [], (err, rows) => {
+        if (err) {
+          return reject(err);
+        }
+        (rows.length > 0) ? resolve(true) : resolve(false);
+      });
+    });
+  };
+
+  const asyncQueryVal = (query) => {
+    return new Promise((resolve, reject) => {
+      db.all(query, [], (err, rows) => {
+        if (err) {return reject(err);}
+        var retVal = "";
+        rows.forEach((row) => {retVal = row.url;});
+        (rows.length > 0) ? resolve(retVal) : resolve(false);
+      });
+    });
+  };
+
+
+  watcher.on('ready', function() {
+    console.log('Newly watched paths:', watcher.getWatched());
+  });
+
+  watcher.on('add', async path => {
+    batchFiles.push(path);
+    clearTimeout(batchTimer);
+    batchTimer = setTimeout(watcherBatch);
+  });
+
+  watcher.on('addDir', function(path) {})
+  
+  watcher.on('change', async function(path, stats) {
+    console.log('파일이 변경된 경우' + path);
+    console.log('파일이 변경된 경우' + JSON.stringify(stats));
+
+    const query = `SELECT * FROM filelist WHERE local_path = '${path}'`;
+    const found = await asyncQuery(query);
+
+    if (found == false) {
+      return console.log(`Local DB 에서 파일을 찾을 수 없음.`);
+    }
+    
+    // console.log(`여기서 ES 서버에 파일을 다시 업로드 할 것... ${path}`);
+    request.post({url: ES_UPLOAD_PATH, formData: {file: fs.createReadStream(path)}}, async (err, response, body) => {
         if (err) {
           return console.error('upload failed:', err);
         }
-        
         const result = JSON.parse(body);
-				console.log("resu==="+ result);
         if (result.ok == false) {
           return console.log('upload failed');
         }
       });
-    }
+  })
 
-    if (event == 'unlink') {
-      // console.log('파일을 삭제하는 경우')
-      const delQuery = `DELETE FROM filelist WHERE local_path = '${path}'`;
-      const res = await asyncQuery(delQuery);
+  watcher.on('unlink', async function(path) {
 
-      console.log(`여기서 ES 서버 데이터 삭제할 것 ... ${path}`);
-    }
-  });
+    const selectQuery = `SELECT * FROM filelist WHERE local_path = '${path}'`;
+    const valquery = await asyncQueryVal(selectQuery);
+    console.log("found add query=============" + valquery);
+
+    // console.log('파일을 삭제하는 경우')
+    const delQuery = `DELETE FROM filelist WHERE local_path = '${path}'`;
+    const res = await asyncQuery(delQuery);
+    console.log(`여기서 ES 서버 데이터 삭제할 것 ... ${path}`);
+
+     //console.log(`여기서 ES 서버에 파일을 다시 업로드 할 것... ${path}`);
+    
+     /*
+     es delete documnet 수정...작동 오류
+    const options = {
+      url: 'http://localhost:3001/api/esdelete/'+userIndexUUID+"/2223.txt",
+      method: 'POST',
+      gzip: true,
+    };
+    console.log("options.url" + options.url);
+    request.post(options, async (err, response, body) => {
+      if (err) {
+        return console.error('upload failed:', err);
+      }
+      console.log("del es documnet ---" + response.body);
+      // const result = JSON.parse(body);
+      // if (result.ok == false) {
+      //   return console.log('upload failed');
+      // }
+    });
+    */
+  
+  })
+  watcher.on('unlinkDir', function(path) {})
+  watcher.on('error', function(error) {})
+
 };
-
-function watcherstart(arg){
-  console.log('action~~~  ' + JSON.stringify(arg));
-  getSearchPath();
-  main();
-}
-
-//module.exports = {
-//	start: watcherstart()
-//};
 
 module.exports = {
 	start: function(arg){
+  	fileIndexingDel();
 	  getSearchPath();
- 	main(arg);
+ 	  main(arg);
 // maintest(arg);
 	}
 };

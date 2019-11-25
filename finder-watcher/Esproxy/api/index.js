@@ -90,12 +90,11 @@ api.get('/escreate/:id', async (ctx, next) => {
 	console.log("aa===="+ ctx.params.id);
 	var indexName = ctx.params.id;
 	esClient.initIndex(indexName);	
-
 });
 
 // es exists and create
 api.post('/indexExists', async (ctx, next) => {
-	console.log("=======================exists ==== "+ctx.request.body.userUuid);
+	
 //  console.log("aa===="+ ctx.params.id);
   var indexName = ctx.request.body.userUuid;
   var indexChk = await esClient.indexExists(indexName).then();
@@ -106,5 +105,13 @@ api.post('/indexExists', async (ctx, next) => {
 });
 
 
+//	es delete document 
+api.get('/esdelete/:id/:documentName', async (ctx, next) => {
+	console.log("aa===="+ ctx.params.id);
+	console.log("aa===="+ ctx.params.documentName);
+	var indexName = ctx.params.id;
+	var documentName = ctx.params.documentName;
+	esClient.deleteIndex(indexName, documentName);	
+});
 
 module.exports = api;

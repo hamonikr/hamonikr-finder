@@ -1,6 +1,6 @@
 const es = require('elasticsearch');
 const esClient = new es.Client({
-    host: '192.168.0.55:9200'
+    host: '192.168.0.56:9200'
  //   ,log: 'trace'
 		,requestTimeout: 3000
     //,log: 'trace'
@@ -37,9 +37,18 @@ function indexExists(indexName) {
 exports.indexExists = indexExists;
 
 
-function deleteIndex(indexName) {
+function deleteIndex(indexName, documentName) {
     return esClient.indices.delete({
-        index: indexName
+        // index: indexName,
+        // id: documentName
+        index: indexName,
+        body: {
+            query: {
+                match: {
+                    "filename": documentName
+                }
+            }
+        }
     });
 }
 exports.deleteIndex = deleteIndex;
