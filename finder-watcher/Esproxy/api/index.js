@@ -5,29 +5,31 @@ const rp = require('request-promise')
 const esClient = require('./client');
 
 
-
+// var aa = await fn_EsQuery( esResultObj.id, indexArr);
 async function fn_EsQuery(keyword, indexName){
   var retVal="";
-  //const body = {
+  // const body = {
   //  "query": {
   //      "match" : {
-  //          "content" : "*"+keyword+"*"
+  //          "content" :  "*"+keyword+"*"
   //      }
   //  }
-  //  //,"_source": [ "content", "file", "path", "external" ]
-  //}
+  //  ,"_source": [ "content", "file", "path", "external" ]
+  // }
   const body = {
-	size: 1000,
+	size: 10,
       query: {
           query_string: {
+            // "fields":["content"],
             query: "*"+keyword+"*" //"한글",
            // , default_field: "content"
           }
       }
   }
   try {
-	//	esClient.initIndex
-		const resp = await esClient.searchDoc(indexName, '', body);
+  //	esClient.initIndex
+    console.log("----------------------------------_" + keyword +"==="+ indexName);
+		const resp = await esClient.searchDoc(indexName, body);
     //console.log("body========================+" + JSON.stringify(body));
 
 		var dataJsonArray = new Array();
@@ -40,7 +42,8 @@ async function fn_EsQuery(keyword, indexName){
 			dataJson.filepath = hit._source.external.description;
 		
 			dataJson.fileSharing = hit._source.external.FileSharing;
-			dataJson.owner_nm = hit._source.external.owner_nm;
+      dataJson.owner_nm = hit._source.external.owner_nm;
+      dataJson.owner_uuid = hit._source.external.owner_uuid;
 
 
 			console.log("1===>"+ hit._source.external.description);
@@ -72,17 +75,20 @@ var aa = ctx.params.id;
 
 
 api.post('/es', async (ctx, next) => {
-console.log("es==================+++");
-    console.log(ctx.request.body);
-    var esResultObj = ctx.request.body;
-    console.log(esResultObj.id); 
-    console.log(esResultObj.userUuid); 
-    
-    var aa = await fn_EsQuery(esResultObj.id, esResultObj.userUuid);
-    console.log("\n----"+aa+"---\n");
-    ctx.body = { message : aa };
+  var indexArr = [];  
+  var esResultObj = ctx.request.body;
+  var groupNm = esResultObj.groupNm;
+  var userNm = esResultObj.userNm;
+  
+  indexArr[0] = esResultObj.userUuid;
+  if( groupNm != null ){
+    indexArr[1] = esResultObj.groupNm;
   }
-);
+  console.log("=========arr============+++"+ indexArr);
+  var aa = await fn_EsQuery( esResultObj.id, indexArr);
+  // var aa = await fn_EsQuery( esResultObj.id,esResultObj.userUuid, indexArr);
+  ctx.body = { message : aa };
+});
 
 
 //	es index create

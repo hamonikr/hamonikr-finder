@@ -122,6 +122,7 @@ const main = async (userUuid) => {
   
 
   var batchFiles  = [];
+  var batchFilesIndexing  = [];
   var batchTimer  = null;
 
   const watcher = chokidar.watch(FILE_FOLDER, {
@@ -167,9 +168,16 @@ const main = async (userUuid) => {
   }
 
   async function processArray(array) {
+   
 
+
+    var sendRequestTime = new Array();
+    var sendRequestCnt = 0;
     // array.forEach(async (item, itemcnt) => {
     for( const item of array ){
+
+      var requestTime = moment(new Date()).format(fmt1); //Date 객체를 파라미터로 넣기
+      sendRequestTime[sendRequestCnt++] =  requestTime;
       const formData = {
         index: userIndexUUID,
         file: fs.createReadStream(item), //fs.readFileSync(path, 'utf8'), 
@@ -179,6 +187,7 @@ const main = async (userUuid) => {
 
       let response = await promisifiedRequest(formData, options);
       
+      console.log("send time is : " + requestTime);
       console.log(  "===========userIndexUUID========>"+userIndexUUID);
       console.log(  "===========00========>"+item);
       console.log( "===========11========>"+JSON.stringify(response.headers));
@@ -193,11 +202,12 @@ const main = async (userUuid) => {
       // console.log('업로드 한 파일의 hash 값을 local DB 에 저장한다.');
       const addQuery = `insert into filelist(local_path, url) values ('${item}', '${result.url}')`;
       const resAddQuery = await asyncQuery(addQuery);
-      
-      // const selectQuery = `SELECT * FROM filelist WHERE local_path = '${item}'`;
-      // const found = await asyncQuery(selectQuery);
-
     }
+    console.log("sendRequestTime===========++"+ sendRequestTime.length);
+
+    sendRequestTime.forEach(async (item, itemcnt) => {
+      console.log("i=============tiem----------" + item);
+    });
   }
 
   const promisifiedRequest = function(formData, options) {
@@ -217,10 +227,39 @@ const main = async (userUuid) => {
   function watcherBatch() {
     watcherChange('change', batchFiles);
     batchFiles = [];
+    batchFilesIndexing = [];
   }
 
   function watcherChange(event, path) {
     processArray(path);
+    
+    console.log(batchFiles.length+"--------------1--------");
+    console.log(batchFilesIndexing.length+"========222222222222");
+
+    var osType = require('os');
+    var fileDir  = osType.homedir() + '/.config/hamonikr_finder/indexingFile';			
+    var nowMoment = moment(new Date()).format(fmt1); //Date 객체를 파라미터로 넣기
+    var fileArg = "";
+
+    // endTime = nowMoment;
+    batchFilesIndexing.forEach(async (item, itemcnt) => {
+      console.log("item-------------" + item +"==========="+ batchFiles[itemcnt]);
+      fileArg += "시간 : [" + item +"], 파일수 :" + (itemcnt+1) +",   file name is : "+ batchFiles[itemcnt] +"\n";
+      // fs.appendFile(fileDir, fileArg, (err) => {
+      //   if(err) { console.log("err====" + err);}
+      // });
+      
+      console.log("batchFilesIndexing.length==" + batchFilesIndexing.length +"=========+"+ (itemcnt+1));
+      if( batchFilesIndexing.length == (itemcnt+1) ){
+        var lastVal = "start time : " + batchFilesIndexing[0] +"\nlast time : " + batchFilesIndexing[batchFilesIndexing.length-1];
+
+        fs.appendFile(fileDir, fileArg + lastVal, (err) => {
+          if(err) { console.log("err====" + err);}
+        });
+      }  
+
+    });
+
 	}
 
   const asyncQuery = (query) => {
@@ -252,9 +291,19 @@ const main = async (userUuid) => {
   });
 
   watcher.on('add', async path => {
+    console.log("path========== " + path);
+    
+    
+    var nowMoment = moment(new Date()).format(fmt1); //Date 객체를 파라미터로 넣기
+    console.log("a===========" + path + "=="+ nowMoment);
+
+
     batchFiles.push(path);
+    batchFilesIndexing.push(nowMoment);
     clearTimeout(batchTimer);
     batchTimer = setTimeout(watcherBatch);
+
+    
   });
 
   watcher.on('addDir', function(path) {})

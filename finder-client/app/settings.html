@@ -143,7 +143,7 @@ p {
 }
 
 span {
-  font-size: .5em;
+  font-size: .8em;
   color: #777777;
 }
 
@@ -224,6 +224,7 @@ input {
 			
 			<h2>그룹명 </h2>
 			<p><input type="text" id="groupNm" placeholder="Enter Group Name" class="noneDragLayer"></input></p>
+			<input type="hidden" id="userIpAddress"></input>
 			<p><button class="btn noneDragLayer" onClick="setProfile();">확인</button></p>
     </div>
     
@@ -271,6 +272,17 @@ input {
 
 <script type="text/javascript">
 const {ipcRenderer} = require('electron');
+
+
+ipcRenderer.send('openUserUUID', () => {
+	console.log("Event sent.");
+})
+
+ipcRenderer.on('userUUidData', (event, data) => {
+	console.log("-----data-----" + data);
+	$("#userIpAddress").val(data);
+});
+fn_load_profile();
 /*active button class onclick*/
 $('nav a').click(function(e) {
   e.preventDefault();
@@ -373,21 +385,23 @@ $("#searchInput").keydown(function(key) {
 
 			var fs = require("fs");
 			var osType = require('os');
-		  var dirpath = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
+			var dirpath = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
 			var uuidData = fs.readFileSync(dirpath, 'utf8');
-      var unirest = require('unirest');
-
+			var unirest = require('unirest');
+			console.log("groupnm===========++"+ $("#searchInput").val()+"============++"+$("#groupNm").val()+"====userId===" + $("#userId").val());	
+				
+	    	
 	    console.log("startTime is : " + getDateTime() );
       unirest.post('http://127.0.0.1:3001/api/es')
         .header('Accept', 'application/json')
-        .send({ "id": $("#searchInput").val(), "userUuid":uuidData })
+        .send({ "id": $("#searchInput").val(), "userUuid":uuidData, "groupNm": $("#groupNm").val(), "userNm": $("#userId").val() })
         .end(function (response) {
           var innerData = "";
           var esResultObj = response.body;
           $("#esSearchResultTbody").empty();
           if( typeof esResultObj == "undefined" ){
             innerData += '<div class="w3-panel w3-border-left w3-pale-red w3-border-red" style="margin: 10px 0;">';
-            innerData += '<span style="font-size: 18px;">검색결과가 없습니다.</span><br>';
+            innerData += '<span style="font-size: 14px;">검색결과가 없습니다.</span><br>';
             innerData += '</div>';
             $("#esSearchResultTbody").append(innerData);
           }else {
@@ -395,7 +409,7 @@ $("#searchInput").keydown(function(key) {
 
             if( typeof esResultObj.message == "undefined" ){
               innerData += '<div class="w3-panel w3-border-left w3-pale-red w3-border-red" style="margin: 10px 0;">';
-              innerData += '<span style="font-size: 18px;">검색결과가 없습니다.</span><br>';
+              innerData += '<span style="font-size: 14px;">검색결과가 없습니다.</span><br>';
               innerData += '</div>';
             } else {
               var jsontext = esResultObj.message;
@@ -416,8 +430,13 @@ $("#searchInput").keydown(function(key) {
 									}
 
                   innerData += '<div class="w3-panel w3-border-left w3-pale-red w3-border-red" style="margin: 10px 0;">';
-                  innerData += '<span style="font-size: 18px;">'+contact[i].filename+' ['+fileSharing+']'+'</span><br>';
-                  innerData += '<span class="openFileTag" data-value="'+contact[i].filepath+'">'+contact[i].filepath+'</span>';
+                  innerData += '<span style="font-size: 14px;">'+contact[i].filename+' ['+fileSharing+']'+'</span><br>';
+                  innerData += '<span class="openFileTag" data-value="'+contact[i].filepath+'">'+contact[i].filepath;
+		  if( contact[i].fileSharing == "PR"){
+		  	innerData += '<buton class="btn" onclick="fileDown(this);" data-value="'+contact[i].filepath+'"><b>[down]</b></buton>';
+		  }
+		  innerData += '</span>';
+		  innerData += '<input type="hidden" name="owner_uuid" id="owner_uuid" value="'+contact[i].owner_uuid+'"></input>';
                   innerData += '</div>';
                 }
               }
@@ -545,7 +564,7 @@ function setProfile(){
 
   unirest.post('http://127.0.0.1:3001/profile')
   	.header('Accept', 'application/json')
-    .send({ "userId": $("#userId").val(), "groupNm": $("#groupNm").val(), "userUuid": uuidData })
+    .send({ "userId": $("#userId").val(), "groupNm": $("#groupNm").val(), "userUuid": uuidData, "userIp": $("#userIpAddress").val() })
     .end(function (response) {
     	console.log(response.body);
 	 });
@@ -614,6 +633,21 @@ function getDateTime() {
     return year + ":" + month + ":" + day + ":" + hour + ":" + min + ":" + sec +"  " + date.getMilliseconds();
 }
 
+function fileDown( val ){
+
+	var ownerDir = val.getAttribute("data-value");
+	console.log("aaa====" + ownerDir);
+
+	var unirest = require('unirest');
+	unirest.post('http://127.0.0.1:3001/ownerIp')
+        .header('Accept', 'application/json')
+        .send({ "owner_uuid": $("#owner_uuid").val() })
+        .end(function (response) {
+          var innerData = "";
+          var ownerInfoObj = response.body;
+		location.href = "http://"+ownerInfoObj+":3001/fileapi/bbb?file="+ownerDir;							  
+	});		  
+}
 
 </script>
 <script>require('./renderer.js')</script>

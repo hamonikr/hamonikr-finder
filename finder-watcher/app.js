@@ -8,19 +8,33 @@ const app = new Koa();
 const router = new Router();
 const mongo = require('./MongoCon/mongoconf')
 const bodyParser = require('koa-bodyparser');
+const render = require('koa-ejs');
+const path = require('path');
 
 // Require the Router
 const api = require('./Esproxy/api');
+const fileapi = require('./remoteFileAccess');
+console.log("============+> "+ fileapi);
 app.use(mongo())
 app.use(koaBody());
 app.use(router.routes()).use(router.allowedMethods());
 
 router.use('/api', api.routes()); 
+router.use('/fileapi', fileapi.routes());
+
+render(app, {
+  root: path.join(__dirname, '/remoteFileAccess/public'),
+  layout: 'template',
+  viewExt: 'ejs',
+  cache: false,
+  debug: true
+})
+
 
 // Server
 var port = 3001;
 app.listen(port, function(){
-  console.log('listening on port:' + port);
+	console.log('listening on port:' + userIPChk() +"/"+ port);
 });
 
 //	Watcher
@@ -57,17 +71,60 @@ router.post('/aaa', koaBody(),
 );
 
 router.post('/profile', async (ctx, next) => {
-console.log(" profile ==================+++");
-    console.log(ctx.request.body);
+	console.log(" profile ==================+++");
     var profileObj = ctx.request.body;
     console.log("userid === "+ profileObj.userId);
     console.log("groum name == "+ profileObj.groupNm);
-		console.log("useruuid === "+ profileObj.userUuid);
-
-		const tmp = await ctx.db.collection('test_users').updateOne({ user_uuid: profileObj.userUuid},{ $set:{ user_nm: profileObj.userId, group_nm: profileObj.groupNm}})
-		console.log("===tmp===="+ tmp);
+	console.log("useruuid === "+ profileObj.userUuid);
+	console.log("user ip  === "+ profileObj.userIp);
+	var ipaddressVal = userIPChk();
+	const tmp = await ctx.db.collection('test_users').updateOne(
+		{ 
+			user_uuid: profileObj.userUuid
+		},
+		{ $set:
+			{ 
+				user_nm: profileObj.userId, 
+				group_nm: profileObj.groupNm,
+				user_ip: ipaddressVal
+			}
+		}
+	)
+	console.log("===tmp===="+ tmp);
   }
 );
+
+// 사용자 ip 정보 등록
+router.post('/userIPchk', async (ctx, next) => {
+	console.log("ip update====");
+	var userInfo = ctx.request.body;
+	console.log("user uuid ===" + userInfo.userUuid);
+	var ipaddressVal = userIPChk();
+
+	const tmp = await ctx.db.collection('test_users').updateOne(
+		{ 
+			user_uuid: userInfo.userUuid
+		},
+		{ $set:
+			{ 
+				user_ip: ipaddressVal
+			}
+		}
+	)
+	console.log("===tmp===="+ tmp);
+});
+
+router.post('/ownerIp', async (ctx) => {
+	console.log("owner ip ");
+	var ownerInfo = ctx.request.body;
+	console.log("user id ===" + ownerInfo.owner_uuid);
+	
+	var dbOwnerInfo = await ctx.db.collection('test_users').findOne({"user_uuid":ownerInfo.owner_uuid});
+	console.log("dbOwnerInfo==" + JSON.stringify(dbOwnerInfo));
+	console.log("dbOwnerInfo==" + dbOwnerInfo.user_ip);
+	
+	ctx.body =  dbOwnerInfo.user_ip;
+});
 
 router.post('/userinfo', async (ctx) => {
     const profileObj = ctx.request.body;
@@ -97,9 +154,36 @@ router.post('/select', async(ctx) => {
 });
 
 
+
 router.get('/insert', async(ctx) => {
   console.log("insert-------------");
 	await ctx.db.collection('test_users').insertOne({ user_id: 'example', status: 'aa', group_nm: 'groupnm', user_nm: 'usernm' })
 });
 
 
+function userIPChk(){
+	var os = require('os');
+	var ifaces = os.networkInterfaces();
+	var retVal ='';
+	Object.keys(ifaces).forEach(function (ifname) {
+		var alias = 0;
+		var tmpIfname = "";
+		ifaces[ifname].forEach(function (iface) {
+			if (iface.internal !== false) {
+				console.log('not conn');
+				tmpIfname = 'ERROR-not-conn';
+			}
+			if (alias >= 1) {
+				// console.log("---------------------------ipv4 addresses is : " + ifname + ':' + alias, iface.address);
+			} else {
+				console.log("==================================== ipv4 adress is :" + ifname+"----"+ iface.address);
+				console.log("iface.address===="+ iface.address);
+				tmpIfname = iface.address;
+			}
+			++alias;
+		});
+		retVal = tmpIfname;
+	});
+
+	return retVal;
+}

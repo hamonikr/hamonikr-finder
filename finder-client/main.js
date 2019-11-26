@@ -114,8 +114,44 @@ app.on('ready', () => {
 		console.log('You fired ctrl+alt+j !!!');
 	});
 	setTimeout(createWindow, 500)
-	//createWindow();
- 	//mainWindow.setSize(450,60);
+
+
+	var osType = require('os');
+        var dirpath = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
+        var userUuidStr = "";
+        try{
+                var retVal = fs.existsSync(dirpath);
+                console.log(" client ready --------------FnChk_settingsFile====="+ retVal);
+                if( retVal ){
+                        userUuidStr = fs.readFileSync(dirpath, 'utf8');
+			var headersOpt = {
+ 				"content-type": "application/json",
+    			};
+    			request({
+        			method:'post',
+        			url:'http://127.0.0.1:3001/userIPchk',
+        			form: {'userUuid':  userUuidStr},
+        			headers: headersOpt,
+        			json: true,
+      				}, async function (error, response, body) {
+						console.log("client ready --------------err==="+ error);
+                                       	 if(!error){
+						console.log("client ready --------------ret body==="+ body);
+                                       	 }else{
+						 consoel.log("client ready --------------err="+ error);
+                                       	 }
+
+      				}
+   			 );
+
+                }
+        }catch(e){
+                if(e.code == 'ENOENT'){
+                        console.log("//==mkdir directory");
+                        userUuidStr = "none";
+                }
+        }
+
 });
 
 app.on('window-all-closed', function () {
@@ -136,6 +172,30 @@ app.on('activate', function () {
 
 
 const {ipcMain} = require('electron')
+ipcMain.on('openUserUUID', (event, path) => {
+
+	var osType = require('os');
+        var dirpath = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
+	var userUuidStr = "";
+        try{
+                var retVal = fs.existsSync(dirpath);
+                console.log("FnChk_settingsFile====="+ retVal);
+                if( retVal ){
+                        userUuidStr = fs.readFileSync(dirpath, 'utf8');
+                }
+        }catch(e){
+                if(e.code == 'ENOENT'){
+                        console.log("//==mkdir directory");
+			userUuidStr = "none";
+                }
+        }
+
+
+ 	event.sender.send('userUUidData', userUuidStr);
+
+});
+
+
 ipcMain.on('resize-me-please', (event, arg) => {
 	if(arg == "initLayer"){
 		mainWindow.setResizable(true);
