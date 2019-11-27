@@ -74,7 +74,7 @@ console.log( "p------" + publicFolder +"==="+ file);
 }
 
 function serveFile(fileName, req, res, download) {
-  const blacklistExtensions = ['.avi', '.mp4', '.mov', '.flv', '.mpg', '.3gp', '.asf'];
+  const blacklistExtensions = ['.avi', '.mp4', '.mov', '.flv', '.mpg', '.3gp', '.asf', '.*'];
   fs.exists(fileName, exists => {
     if (!exists) {
       res.writeHead(404);

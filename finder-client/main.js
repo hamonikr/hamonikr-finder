@@ -6,12 +6,17 @@ const BrowserWindow = electron.BrowserWindow;
 const windowStateKeeper = require('electron-window-state');
 const { globalShortcut } = require("electron");
 const fs = require('fs');
+const path = require('path');
 const mkdirp = require('mkdirp');
 const { promisify } = require('util');
 const readFileAsync = promisify(fs.readdir);
 const mkDirpAsync = promisify(mkdirp);
+const url = require('url');
 
 const CHILD_PADDING = 100;
+// const notifier = require("node-notifier");
+const Notification = require('electron-native-notification');
+const open = require('open');
 
 let mainWindow, settingWindow;
 
@@ -77,7 +82,7 @@ const getWindowPosition = () => {
     return {x: x, y: y}
 }
 const createTray = () => {
-	trayIcon  = new Tray(__dirname + '/build/icons/icon16.png');
+	trayIcon  = new Tray(__dirname + '/build/icons/48.png');
 	//tray.setTitle('hello world');
 	const trayMenuTemplate = [
 		{
@@ -87,20 +92,20 @@ const createTray = () => {
 				toggleWindow();
 		   }
 		},
-		{
-		   label: 'Settings',
-		   click: function () {
-			  console.log("Clicked on settings");
-			  settingWindow.show();
-			  console.log("Clicked on settings222");
-		   }
-		},
-		{
-		   label: 'Help',
-		   click: function () {
-			  console.log("Clicked on Help")
-		   }
-		},
+		// {
+		//    label: 'Settings',
+		//    click: function () {
+		// 	  console.log("Clicked on settings");
+		// 	  settingWindow.show();
+		// 	  console.log("Clicked on settings222");
+		//    }
+		// },
+		// {
+		//    label: 'Help',
+		//    click: function () {
+		// 	  console.log("Clicked on Help")
+		//    }
+		// },
 		{ label: 'Quit', click: () => { app.quit(); } }
 	 ]
 	 
@@ -108,50 +113,113 @@ const createTray = () => {
 	 trayIcon.setContextMenu(trayMenu)
 }
 let trayIcon  = null;
-app.on('ready', () => {
-	createTray();
-	globalShortcut.register('alt+f4', function() {
-		console.log('You fired ctrl+alt+j !!!');
+
+function notiAction(){
+	const opt = {
+		title: 'Hamonikr-Office-Toolchain  Alert',
+		body: 'Hamonikr-Office-Toolchain사용자로부터 \n화상통화 연결 요청이 왔습니다.!!! ',
+		icon: path.join(__dirname, "/build/icons/48.png"),
+		sound:true,
+		wait: true
+	};
+	const notification = new Notification(opt.title, opt);
+	notification.on('show', () => {
+		console.log('notification show');
 	});
+	notification.onclick = () => {
+		console.log('notification click');
+		// var Request = unirest.get('http://mockbin.com/request');
+		open('https://hamonia.kr/1234', {app: 'firefox'});
+	};
+	notification.addEventListener('close', () => {
+		console.log('notification close');
+	});
+	notification.addListener('error', (err) => {
+		console.error(err);
+	});
+	setTimeout(() => notification.close(), 10000);
+}
+
+var http = require('http');
+var port = "8081";
+
+// var server = http.createServer();
+// server.addListener('request', function (req, res) {  
+// 	console.log('requested...');
+// 	res.writeHead(200);
+// 	res.end();
+// 	notiAction();
+// });
+// server.addListener('connection', function(socket){  
+//     console.log('connected...');
+// });
+// server.listen({ port: port }, () => {
+// console.log('####################################################');
+// console.log(`\n IP Address: ${require('ip').address()}:${port}\n`);
+// console.log('####################################################');
+// });
+
+http.createServer((req, res) => {
+	let query = url.parse(decodeURI(req.url), true).query;
+	let lookup = url.parse(decodeURI(req.url)).pathname;
+	lookup = path.normalize(lookup);
+	console.log("lookup==="+ lookup);
+
+	if (lookup == '/notify') {
+	  	console.log('requested...notify');
+		res.writeHead(200);
+		res.end();
+		notiAction();
+	} else {
+		console.log('requested...');
+		res.writeHead(200);
+		res.end();
+	}
+  }).listen({ port: port }, () => {
+	console.log('####################################################');
+	console.log(` IP Address: ${require('ip').address()}:${port}\n`);
+	console.log('####################################################');
+  });
+  
+
+app.on('ready', () => {
+
+	createTray();
 	setTimeout(createWindow, 500)
-
-
+	
 	var osType = require('os');
-        var dirpath = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
-        var userUuidStr = "";
-        try{
-                var retVal = fs.existsSync(dirpath);
-                console.log(" client ready --------------FnChk_settingsFile====="+ retVal);
-                if( retVal ){
-                        userUuidStr = fs.readFileSync(dirpath, 'utf8');
+	var dirpath = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
+	var userUuidStr = "";
+	try{
+		var retVal = fs.existsSync(dirpath);
+		console.log(" client ready --------------FnChk_settingsFile====="+ retVal);
+		if( retVal ){
+			userUuidStr = fs.readFileSync(dirpath, 'utf8');
 			var headersOpt = {
- 				"content-type": "application/json",
-    			};
-    			request({
-        			method:'post',
-        			url:'http://127.0.0.1:3001/userIPchk',
-        			form: {'userUuid':  userUuidStr},
-        			headers: headersOpt,
-        			json: true,
-      				}, async function (error, response, body) {
-						console.log("client ready --------------err==="+ error);
-                                       	 if(!error){
+				"content-type": "application/json",
+			};
+			request({
+				method:'post',
+				url:'http://127.0.0.1:3001/userIPchk',
+				form: {'userUuid':  userUuidStr},
+				headers: headersOpt,
+				json: true,
+				}, async function (error, response, body) {
+					console.log("client ready --------------err==="+ error);
+					if(!error){
 						console.log("client ready --------------ret body==="+ body);
-                                       	 }else{
-						 consoel.log("client ready --------------err="+ error);
-                                       	 }
-
-      				}
-   			 );
-
-                }
-        }catch(e){
-                if(e.code == 'ENOENT'){
-                        console.log("//==mkdir directory");
-                        userUuidStr = "none";
-                }
-        }
-
+					}else{
+						consoel.log("client ready --------------err="+ error);
+					}
+				}
+			);
+		}
+	}catch(e){
+		if(e.code == 'ENOENT'){
+			console.log("//==mkdir directory");
+			userUuidStr = "none";
+		}
+	}
 });
 
 app.on('window-all-closed', function () {
@@ -175,28 +243,26 @@ const {ipcMain} = require('electron')
 ipcMain.on('openUserUUID', (event, path) => {
 
 	var osType = require('os');
-        var dirpath = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
+    var dirpath = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
 	var userUuidStr = "";
-        try{
-                var retVal = fs.existsSync(dirpath);
-                console.log("FnChk_settingsFile====="+ retVal);
-                if( retVal ){
-                        userUuidStr = fs.readFileSync(dirpath, 'utf8');
-                }
-        }catch(e){
-                if(e.code == 'ENOENT'){
-                        console.log("//==mkdir directory");
+	try{
+		var retVal = fs.existsSync(dirpath);
+		console.log("FnChk_settingsFile====="+ retVal);
+		if( retVal ){
+			userUuidStr = fs.readFileSync(dirpath, 'utf8');
+		}
+	}catch(e){
+		if(e.code == 'ENOENT'){
+			console.log("//==mkdir directory");
 			userUuidStr = "none";
-                }
-        }
-
-
+		}
+	}
  	event.sender.send('userUUidData', userUuidStr);
-
 });
 
 
 ipcMain.on('resize-me-please', (event, arg) => {
+	console.log("==========================++>"+ arg);
 	if(arg == "initLayer"){
 		mainWindow.setResizable(true);
 		mainWindow.setSize(500,80);
@@ -227,16 +293,24 @@ ipcMain.on('openConfigFile', (event, path) => {
 			console.log("An error ocurred reading the file :" + err.message);
 			return 
 		}else{
-			console.log("data==="+ data);
-			
 			var settingData_arr = data.split('\n');
-			// for(var i=0; i<settingData_arr.length ;++i){
-			// 	console.log(i+'=====' + settingData_arr[i]);
-			// }
-			// console.log("settingData_arr==="+ settingData_arr);
 			event.sender.send('settingData_arr', data);
+		}
+	});
+});
 
-			console.log("uuid info success");
+
+ipcMain.on('prOpenConfigFile', (event, path) => { 
+	var osType = require('os');
+  	var filepath  = osType.homedir() + '/.config/hamonikr_finder/pr_finder_config';
+
+	fs.readFile(filepath, 'utf-8', (err, data) => { 
+		if(err){ 
+			console.log("An error ocurred reading the file :" + err.message);
+			return 
+		}else{
+			var settingData_arr = data.split('\n');
+			event.sender.send('prSettingData_arr', data);
 		}
 	});
 });

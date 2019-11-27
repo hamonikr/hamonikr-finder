@@ -11,6 +11,6 @@ echo ""
 
 sleep 1
 
-node app.js
-echo ""
+#node app.js
+#echo ""
 

@@ -11,6 +11,11 @@ const bodyParser = require('koa-bodyparser');
 const render = require('koa-ejs');
 const path = require('path');
 
+// notifycation 
+const notifier = require("node-notifier");
+//const Notification = require('electron-native-notification');
+const open = require('open');
+
 // Require the Router
 const api = require('./Esproxy/api');
 const fileapi = require('./remoteFileAccess');
@@ -34,6 +39,26 @@ render(app, {
 // Server
 var port = 3001;
 app.listen(port, function(){
+	notifier.notify(
+		{
+				title:'ryan',
+				message: 'aaa',
+				sound: true,
+				wait: true
+		},
+		function(err, response){
+				console.log(err);
+		}
+	)
+	notifier.on('click', function(notifierObjext, options, event){
+			console.log("aclick===");
+	});
+	notifier.on('timeout', function(notifierObject, options) {
+	// Triggers if `wait: true` and notification closes
+	});
+
+
+
 	console.log('listening on port:' + userIPChk() +"/"+ port);
 });
 
@@ -78,19 +103,35 @@ router.post('/profile', async (ctx, next) => {
 	console.log("useruuid === "+ profileObj.userUuid);
 	console.log("user ip  === "+ profileObj.userIp);
 	var ipaddressVal = userIPChk();
-	const tmp = await ctx.db.collection('test_users').updateOne(
-		{ 
-			user_uuid: profileObj.userUuid
-		},
-		{ $set:
+console.log("ipaddressVal===========++"+ ipaddressVal);
+
+	var retVal = "";
+	var userUuidInsertChk = await ctx.db.collection('test_users').findOne({"user_uuid":profileObj.userUuid});
+
+	if( userUuidInsertChk == null){
+		console.log("aaaaaaaaaaaaaaaaaaaaa");
+		retVal = await ctx.db.collection('test_users').insertOne({
+			 user_id: profileObj.userUuid, 
+			 group_nm: profileObj.groupNm, 
+			 user_nm: profileObj.userId,
+			 user_ip: ipaddressVal
+		})
+	}else{
+		console.log("bbbbbbbbbbbbbbbbbb");
+		retVal = await ctx.db.collection('test_users').updateOne(
 			{ 
-				user_nm: profileObj.userId, 
-				group_nm: profileObj.groupNm,
-				user_ip: ipaddressVal
+				user_uuid: profileObj.userUuid
+			},
+			{ $set:
+				{ 
+					user_nm: profileObj.userId, 
+					group_nm: profileObj.groupNm,
+					user_ip: ipaddressVal
+				}
 			}
-		}
-	)
-	console.log("===tmp===="+ tmp);
+		)
+	}
+	console.log("===retVal===="+ retVal);
   }
 );
 
@@ -100,7 +141,7 @@ router.post('/userIPchk', async (ctx, next) => {
 	var userInfo = ctx.request.body;
 	console.log("user uuid ===" + userInfo.userUuid);
 	var ipaddressVal = userIPChk();
-
+	
 	const tmp = await ctx.db.collection('test_users').updateOne(
 		{ 
 			user_uuid: userInfo.userUuid
@@ -160,30 +201,94 @@ router.get('/insert', async(ctx) => {
 	await ctx.db.collection('test_users').insertOne({ user_id: 'example', status: 'aa', group_nm: 'groupnm', user_nm: 'usernm' })
 });
 
-
 function userIPChk(){
 	var os = require('os');
 	var ifaces = os.networkInterfaces();
 	var retVal ='';
+	var tmpIfname = "";
 	Object.keys(ifaces).forEach(function (ifname) {
-		var alias = 0;
-		var tmpIfname = "";
-		ifaces[ifname].forEach(function (iface) {
-			if (iface.internal !== false) {
-				console.log('not conn');
-				tmpIfname = 'ERROR-not-conn';
-			}
-			if (alias >= 1) {
-				// console.log("---------------------------ipv4 addresses is : " + ifname + ':' + alias, iface.address);
-			} else {
-				console.log("==================================== ipv4 adress is :" + ifname+"----"+ iface.address);
-				console.log("iface.address===="+ iface.address);
-				tmpIfname = iface.address;
-			}
-			++alias;
-		});
-		retVal = tmpIfname;
+			var alias = 0;
+			ifaces[ifname].forEach(function (iface) {
+
+				console.log("iface.inter " +iface.internal );
+					if (iface.internal !== false) {
+						console.log('not conn');
+						tmpIfname = 'ERROR-not-conn';
+					}
+					
+					if (alias >= 1) {
+						// console.log("---------------------------ipv4 addresses is : " + ifname + ':' + alias, iface.address);
+					} else {
+						console.log("==================================== ipv4 adress is :" + ifname+"----"+ iface.address);
+						if( ifname.indexOf('eth') == 0 ){
+							tmpIfname = iface.address;
+						}else if( ifname.indexOf('en') == 0 ){
+							tmpIfname = iface.address;
+						}
+					}
+					++alias;
+			});
+			retVal = tmpIfname;
 	});
 
 	return retVal;
+}
+
+
+// notification reset 
+router.get('/notifier', async(ctx) => {
+	console.log("insert-------------");
+	notier_notify();
+});
+
+function notiAction(){
+	const opt = {
+          title: 'BTC Alert',
+                body: 'See? Really \neasy \nto \nuse!',
+                icon: path.join(__dirname, "/coulson.png"),
+                sound:true,
+                wait: true
+        };
+  const notification = new Notification(opt.title, opt);
+  notification.on('show', () => {
+    console.log('I\'m coming~');
+  });
+  notification.onclick = () => {
+    console.log('On no! You touch me. It\'s hurt!!');
+	open('https://hamonia.kr/1234', {app: 'firefox'});
+  };
+  notification.addEventListener('close', () => {
+    console.log('I\'ll be back!!');
+  });
+  notification.addListener('error', (err) => {
+    console.error(err);
+  });
+  console.log('What does the notification say? ' + notification.body);
+  setTimeout(() => notification.close(), 4000);
+}
+
+
+function notier_notify(){
+	const opt = {
+		title: 'BTC Alert',
+			  body: 'See? Really \neasy \nto \nuse!',
+//                icon: path.join(__dirname, "/coulson.png"),
+			  sound:true,
+			  wait: true
+	  };
+	const notification = new Notification(opt.title, opt);
+
+	// notification.on('show', () => {
+	//   console.log('I\'m coming~');
+	// });
+	notification.onclick = () => {
+		open('https://hamonia.kr/1234', {app: 'firefox'});
+	};
+	notification.addEventListener('close', () => {
+	console.log('I\'ll be back!!');
+	});
+	// notification.addListener('error', (err) => {
+	//   console.error(err);
+	// });
+	console.log('What does the notification say? ' + notification.body);
 }
