@@ -19,7 +19,7 @@ const open = require('open');
 // Require the Router
 const api = require('./Esproxy/api');
 const fileapi = require('./remoteFileAccess');
-console.log("============+> "+ fileapi);
+
 app.use(mongo())
 app.use(koaBody());
 app.use(router.routes()).use(router.allowedMethods());
@@ -39,27 +39,7 @@ render(app, {
 // Server
 var port = 3001;
 app.listen(port, function(){
-	notifier.notify(
-		{
-				title:'ryan',
-				message: 'aaa',
-				sound: true,
-				wait: true
-		},
-		function(err, response){
-				console.log(err);
-		}
-	)
-	notifier.on('click', function(notifierObjext, options, event){
-			console.log("aclick===");
-	});
-	notifier.on('timeout', function(notifierObject, options) {
-	// Triggers if `wait: true` and notification closes
-	});
-
-
-
-	console.log('listening on port:' + userIPChk() +"/"+ port);
+	console.log('watcher listening on port:' + userIPChk() +"/"+ port);
 });
 
 //	Watcher
@@ -234,61 +214,3 @@ function userIPChk(){
 	return retVal;
 }
 
-
-// notification reset 
-router.get('/notifier', async(ctx) => {
-	console.log("insert-------------");
-	notier_notify();
-});
-
-function notiAction(){
-	const opt = {
-          title: 'BTC Alert',
-                body: 'See? Really \neasy \nto \nuse!',
-                icon: path.join(__dirname, "/coulson.png"),
-                sound:true,
-                wait: true
-        };
-  const notification = new Notification(opt.title, opt);
-  notification.on('show', () => {
-    console.log('I\'m coming~');
-  });
-  notification.onclick = () => {
-    console.log('On no! You touch me. It\'s hurt!!');
-	open('https://hamonia.kr/1234', {app: 'firefox'});
-  };
-  notification.addEventListener('close', () => {
-    console.log('I\'ll be back!!');
-  });
-  notification.addListener('error', (err) => {
-    console.error(err);
-  });
-  console.log('What does the notification say? ' + notification.body);
-  setTimeout(() => notification.close(), 4000);
-}
-
-
-function notier_notify(){
-	const opt = {
-		title: 'BTC Alert',
-			  body: 'See? Really \neasy \nto \nuse!',
-//                icon: path.join(__dirname, "/coulson.png"),
-			  sound:true,
-			  wait: true
-	  };
-	const notification = new Notification(opt.title, opt);
-
-	// notification.on('show', () => {
-	//   console.log('I\'m coming~');
-	// });
-	notification.onclick = () => {
-		open('https://hamonia.kr/1234', {app: 'firefox'});
-	};
-	notification.addEventListener('close', () => {
-	console.log('I\'ll be back!!');
-	});
-	// notification.addListener('error', (err) => {
-	//   console.error(err);
-	// });
-	console.log('What does the notification say? ' + notification.body);
-}

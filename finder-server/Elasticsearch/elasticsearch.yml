@@ -1,3 +1,0 @@
-network.host: 0.0.0.0
-cluster.name: liferay_cluster
-xpack.security.enabled: false

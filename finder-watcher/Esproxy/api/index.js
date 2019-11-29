@@ -17,7 +17,7 @@ async function fn_EsQuery(keyword, indexName){
   //  ,"_source": [ "content", "file", "path", "external" ]
   // }
   const body = {
-	size: 10,
+	size: 100,
       query: {
           query_string: {
             // "fields":["content"],

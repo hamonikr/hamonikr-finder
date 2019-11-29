@@ -60,14 +60,13 @@ body {/background: linear-gradient(to right, #3FB6A8, #7ED386);}
   left: 2.5%;
   position: absolute;
   height: 110%;
-  /* background: #7ED386; */
-  background: #ebf7ec;
-  box-shadow: 3px 3px 10px rgba(119, 119, 119, 0.5);
+  background: #333333;
+  /* box-shadow: 3px 3px 10px rgba(119, 119, 119, 0.5); */
 }
 nav a {
   list-style: none;
   padding: 20px;
-  color: #84517f;
+  color: #ffffff;
   font-size: 1.1em;
   display: block;
   transition: all .3s ease-in-out;
@@ -78,7 +77,6 @@ nav a:hover {
   cursor: pointer;
 }
 /* nav a:first-child {margin-top: 7px;} */
-.active {color: rgb(3, 3, 36);}
 .rightbox {
 	margin-left: 25%;
   width: 60%;
@@ -97,9 +95,9 @@ h2 {
   color: #777777;
   width: 80%;
   text-transform: uppercase;
-  font-size: 8px;
+  font-size: 15px;
   letter-spacing: 1px;
-  margin-left: 2px;
+  /* margin-left: 2px; */
 }
 p {
   border-width: 1px;
@@ -108,7 +106,7 @@ p {
   border-top: 0;
   width: 100%;
   font-size: .7em;
-  padding: 10px 0px; 
+  /* padding: 10px 0px;  */
   color: #070707;
 }
 span {
@@ -143,7 +141,7 @@ input {
 <!-- left layer -->
   <div class="leftbox">
     <nav id='navLayer'>
-      <a href="javascript:;" id="search" class="active noneDragLayer"><i class="fa fa-search">&nbsp;검색&nbsp;</i></a>
+      <a href="javascript:;" id="search" class="active noneDragLayer" style="background: #8059D7;"><i class="fa fa-search">&nbsp;검색&nbsp;</i></a>
       <a href="javascript:;" id="profile" class="noshow noneDragLayer" style="display:none;"><i class="fa fa-user">정보설정</i></a>
       <a href="javascript:;" id="payment" class="noshow noneDragLayer" style="display:none;"><i class="fa fa-folder-open">폴더설정</i></a>
     </nav>
@@ -154,7 +152,7 @@ input {
 				
 		</div>
 		<div id="searchBodyId" class="search" style="width: 370px;">
-			<p>
+			<p style="padding: 10px 0px;">
 				<!-- <button class="btn" style="font-size: 14px;">Search</button><input type="text" id="searchInput" placeholder="Enter Search Keyword" class="noneDragLayer"></input> -->
 				<span style="font-size: 18px;"> Search : </span><input type="text" id="searchInput" placeholder="Enter Search Keyword" class="noneDragLayer"></input>
         
@@ -164,16 +162,17 @@ input {
 			<div id="esSearchResultTbody" style="display:none;" class="noneDragLayer"></div>
     </div>
     <div class="profile noshow" style="display:none;">
-      <h1>Personal Info</h1>
+      <h1 style="background:#e6e6e6; height: 50px; margin-left: -6%; margin-top: 0%; padding: 15px 12px;color:black;" >정보설정</h1>
       <h2>사용자명 </h2>
 			<p><input type="text" id="userId" placeholder="Enter user name or user id" class="noneDragLayer"></input></p>
-			<h2>그룹명 </h2>
+      <br>
+      <h2>그룹명 </h2>
 			<p><input type="text" id="groupNm" placeholder="Enter Group Name" class="noneDragLayer"></input></p>
 			<input type="hidden" id="userIpAddress"></input>
-			<p><button class="btn noneDragLayer" onClick="setProfile();">확인</button></p>
+			<span><button class="w3-btn noneDragLayer" onClick="setProfile();">확인</button></span>
     </div>
     <div class="payment noshow" style="display:none;">
-      <h1>색인폴더 지정.</h1>
+      <h1 style="background:#e6e6e6; height: 50px; margin-left: -6%; margin-top: 0%; padding: 15px 12px; color:black;">폴더설정</h1>
       <h2>-개인 폴더 지정.</h2>
 			<div class="w3-container noneDragLayer">
 			  <div id="pre_set" style="display:none;font-size: 13px;" last-id="0">
@@ -187,9 +186,11 @@ input {
 			  <div id="field" style="max-height:770px; overflow:auto; width: 300px;"></div>
 			</div>
 			<p>
-      <button id="browse-directory" class="cls_browse-directory btn noneDragLayer">+ Add Folder</button>
-      <button id="browse-directory-save" class="btn noneDragLayer" onclick="dirSettingsSave();">∴ Save  </button>
+      <!-- <button id="browse-directory" class="cls_browse-directory btn noneDragLayer">+ Add Folder</button> -->
+      <button id="browse-directory" class="cls_browse-directory  w3-btn noneDragLayer">+ Add Folder</button>
+      <button id="browse-directory-save" class=" w3-btn noneDragLayer" onclick="dirSettingsSave();">∴ Save  </button>
       </p>
+      <br>
 			<h2>-공유 폴더 지정.</h2>
       <div class="w3-container noneDragLayer">
         <div id="public_pre_set" style="display:none;font-size: 16px;" last-id="0">
@@ -203,8 +204,8 @@ input {
         <div id="public_field" style="max-height:770px; overflow:auto; width: 300px;"></div>
       </div>
 			<p>
-			<button id="public_browse-directory" class="cls_browse-directory btn noneDragLayer">+ Add Folder</button>
-			<button id="browse-directory-save" class="btn noneDragLayer" onclick="public_dirSettingsSave();">∴ Save  </button>
+			<button id="public_browse-directory" class="cls_browse-directory w3-btn noneDragLayer">+ Add Folder</button>
+			<button id="browse-directory-save" class="w3-btn noneDragLayer" onclick="public_dirSettingsSave();">∴ Save  </button>
 			</p>
     </div>
   </div>
@@ -229,6 +230,9 @@ $('nav a').click(function(e) {
   if(this.id === !'payment'){
     $('.payment').addClass('noshow');
   }else if(this.id === 'payment') {
+    $('#profile').css('background','#333333');
+    $('#payment').css('background','#8059D7');
+    $('#search').css('background','#333333');
     $('.payment').removeClass('noshow');
     $('.rightbox').children().not('.payment').addClass('noshow');
 		$('.profile').hide();
@@ -239,6 +243,10 @@ $('nav a').click(function(e) {
     fn_file_index_load();
     fn_file_index_loadPr();
   }else if (this.id === 'profile') {
+    $('#profile').css('background','#8059D7');
+    $('#payment').css('background','#333333');
+    $('#search').css('background','#333333');
+
     $('.profile').removeClass('noshow');
     $('.rightbox').children().not('.profile').addClass('noshow');
 		$('.payment').hide();
@@ -248,6 +256,9 @@ $('nav a').click(function(e) {
 		fn_load_profile();
   }else if(this.id === 'search') {
 		ipcRenderer.send('resize-me-please', "initLayer");
+    $('#profile').css('background','#333333');
+    $('#payment').css('background','#333333');
+    $('#search').css('background','#8059D7');
 		$('#search').css('margin-top','0px');
     $('.search').removeClass('noshow');
     $('#payment').addClass('noshow');
@@ -270,6 +281,10 @@ $('nav a').click(function(e) {
 
 $('#settings').click(function(e) {
 	layerChange();
+		
+  $('#profile').css('background','#8059D7');
+    $('#payment').css('background','#333333');
+    $('#search').css('background','#333333');
 	$('#search').removeClass('noshow active');
 	$('#profile').addClass('active');
 	$('.rightbox').children().not('.profile').addClass('noshow');
@@ -313,7 +328,9 @@ $("#searchInput").keydown(function(key) {
 			var osType = require('os');
 			var dirpath = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
 			var uuidData = fs.readFileSync(dirpath, 'utf8');
-			var unirest = require('unirest');
+      var unirest = require('unirest');
+      var st = getDateTime();
+      console.log("[검색 시간 측정]");
 	    console.log("startTime is : " + getDateTime() );
       unirest.post('http://127.0.0.1:3001/api/es')
         .header('Accept', 'application/json')
@@ -340,15 +357,15 @@ $("#searchInput").keydown(function(key) {
 								var fileSharing = "";
                 for (var i = 0; i < contact.length; i++) {
 
-                  innerData += '<div class="w3-panel w3-border-left w3-pale-red w3-border-red" style="margin: 10px 0;">';
+                  innerData += '<div class="w3-panel w3-border-bottom w3-padding-16" style="margin: 10px 0;">';
                   
                   if( contact[i].fileSharing == "PR"){
                     fileSharing = "공유-"+contact[i].owner_nm;
                     innerData += '<span style="font-size: 14px;">'+'['+fileSharing+'] </span>';
                     innerData += '<a href="javascript:;" class="btn" onclick="fileDown(this);" data-value="'+contact[i].filepath+'" data-ownerid="'+contact[i].owner_uuid+'">';
-                    innerData += '<i class="fa fa-download" aria-hidden="true" style="color:black; padding: 5px 0px;"></i></a>';
+                    innerData += '<i class="fa fa-download" aria-hidden="true" style="color:#8059D7; padding: 5px 0px;"></i></a>';
                     innerData += '<a href="javascript:;" class="btn" onclick="userCalling(this);" data-value="'+contact[i].owner_uuid+'" data-ownerid="'+contact[i].owner_uuid+'">';
-                    innerData += '<i class="fa fa-phone" aria-hidden="true" style="color:black; padding: 5px 0px;"></i></a>';
+                    innerData += '<i class="fa fa-phone" aria-hidden="true" style="color:#8059D7; padding: 5px 0px;"></i></a>';
                     innerData += '<br>';
 									}else{
                     fileSharing = "개인";
@@ -362,7 +379,7 @@ $("#searchInput").keydown(function(key) {
               }
             }
             $("#esSearchResultTbody").append(innerData);
-						console.log("end time is : " + getDateTime());
+            console.log("end time is : " + getDateTime());
           }
         });
     }
@@ -407,7 +424,7 @@ function dirSettingsSave(){
 
 // public 
 function public_addconfige_info(x) {
-  console.log('x==================' + x);addconfige_info
+  // console.log('x==================' + x);addconfige_info
   var pre_set = document.getElementById('public_pre_set');
   var fieldid = pre_set.getAttribute('last-id');
   pre_set.setAttribute('last-id',Number(fieldid) + 1 );
@@ -498,7 +515,7 @@ function fn_file_index_loadPr(){
 	  if( settingData_arr.length != 0 ){
       $('#public_field').children().remove();
 	    for(var i=0; i<settingData_arr.length -1 ;++i){
-        console.log("=================+++" + settingData_arr[i]);
+        // console.log("=================+++" + settingData_arr[i]);
         // addconfige_info(settingData_arr[i]);
         public_addconfige_info(settingData_arr[i]);
 	    }
@@ -555,7 +572,7 @@ function getDateTime() {
   month = (month < 10 ? "0" : "") + month;
   var day  = date.getDate();
   day = (day < 10 ? "0" : "") + day;
-  return year + ":" + month + ":" + day + ":" + hour + ":" + min + ":" + sec +"  " + date.getMilliseconds();
+  return year + "-" + month + "-" + day + " " + hour + ":" + min + ":" + sec +"." + date.getMilliseconds();
 }
 
 function fileDown( val ){
@@ -572,6 +589,7 @@ function fileDown( val ){
       var innerData = "";
       var ownerInfoObj = response.body;
       // window.location.href = "http://"+ownerInfoObj+":3001/fileapi/bbb?file="+ownerDir;
+      console.log("====> "+ "http://"+ownerInfoObj+":3001/fileapi/bbb?file="+ownerDir);
       document.getElementById("myiframe").src = "http://"+ownerInfoObj+":3001/fileapi/bbb?file="+ownerDir;
 	});		  
 }
@@ -582,13 +600,9 @@ function userCalling(val){
   const Dialogs = require('dialogs')
   const dialogs = Dialogs()
   dialogs.confirm('화상통화 요청을 하시겠습니까?', ok => {
-    console.log('confirm', ok);
 
     if( ok ){
-      console.log("aaaaaaaaa");
       var ownerId = val.getAttribute("data-value"); 
-      console.log("owner---id is : " + ownerId);	
-      
       var ownerDir = val.getAttribute("data-value");
       var ownerId = val.getAttribute("data-ownerid");									
 
@@ -613,7 +627,7 @@ function userCalling(val){
 </script>
 <script>require('./renderer.js')</script>
 <iframe id="myiframe" style="display:none;"></iframe>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.16.0/moment-with-locales.min.js"></script>
 </body>
 </html> 
 
