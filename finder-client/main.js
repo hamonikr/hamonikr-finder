@@ -224,7 +224,7 @@ app.on('ready', () => {
 
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
-	   mainWindow.setSize(500,70);
+	   mainWindow.setSize(500,80);
 	 //  mainWindow.hide();
     app.quit();
   }
@@ -265,13 +265,13 @@ ipcMain.on('resize-me-please', (event, arg) => {
 	console.log("==========================++>"+ arg);
 	if(arg == "initLayer"){
 		mainWindow.setResizable(true);
-		mainWindow.setSize(500,80);
+		mainWindow.setSize(550,80);
 	}else if( arg == "viewLayer"){
-  		mainWindow.setSize(550, 540);
+  		mainWindow.setSize(561, 580);
 		 // esRequest();
 	}else{
 		createWindow();
-		mainWindow.setSize(500,80);
+		mainWindow.setSize(550,80);
 	}		
 })
 

@@ -139,7 +139,7 @@ input {
 <body>
 <div class="container dragLayer">
 <!-- left layer -->
-  <div class="leftbox">
+  <div class="leftbox" style="">
     <nav id='navLayer'>
       <a href="javascript:;" id="search" class="active noneDragLayer" style="background: #8059D7;"><i class="fa fa-search">&nbsp;검색&nbsp;</i></a>
       <a href="javascript:;" id="profile" class="noshow noneDragLayer" style="display:none;"><i class="fa fa-user">정보설정</i></a>
@@ -156,10 +156,10 @@ input {
 				<!-- <button class="btn" style="font-size: 14px;">Search</button><input type="text" id="searchInput" placeholder="Enter Search Keyword" class="noneDragLayer"></input> -->
 				<span style="font-size: 18px;"> Search : </span><input type="text" id="searchInput" placeholder="Enter Search Keyword" class="noneDragLayer"></input>
         
-        <a id="closeBtn" class="w3-right noneDragLayer" style="color:#3FB6A8;"><i class="fa fa-window-close" style="font-size:24px"></i></a>
+        <!-- <a id="closeBtn" class="w3-right noneDragLayer" style="color:#3FB6A8;"><i class="fa fa-window-close" style="font-size:24px"></i></a> -->
         <a id="settings" class="active search w3-right noneDragLayer" style="color:#3FB6A8;"><i class="fa fa-gear fa-spin" style="font-size:24px"></i></a>
 			</p>
-			<div id="esSearchResultTbody" style="display:none;" class="noneDragLayer"></div>
+			<div id="esSearchResultTbody" style="display:none; overflow-x:hidden; overflow-y:scroll; width:400; height:430px;" class="noneDragLayer"></div>
     </div>
     <div class="profile noshow" style="display:none;">
       <h1 style="background:#e6e6e6; height: 50px; margin-left: -6%; margin-top: 0%; padding: 15px 12px;color:black;" >정보설정</h1>
@@ -256,6 +256,13 @@ $('nav a').click(function(e) {
 		fn_load_profile();
   }else if(this.id === 'search') {
 		ipcRenderer.send('resize-me-please', "initLayer");
+
+    // overflow-x:hidden; overflow-y:scroll; width:400; height:500px;
+    
+    $('#search').css('overflow-x', 'hidden');
+    $('#search').css('overflow-y', 'hidden');
+    // $('#search').css();
+
     $('#profile').css('background','#333333');
     $('#payment').css('background','#333333');
     $('#search').css('background','#8059D7');
@@ -264,7 +271,7 @@ $('nav a').click(function(e) {
     $('#payment').addClass('noshow');
     $('#profile').addClass('noshow');
   	$('.container').height('50px');
-  	$('.container').width('500px');
+  	$('.container').width('505px');
 		$('.rightbox').css('margin-left','25%');
     $('.rightbox').children().not('.search').addClass('noshow');
 		$('#profile').hide();
@@ -272,6 +279,7 @@ $('nav a').click(function(e) {
 	  $('#payment').hide();
 	  $('.payment').hide();
 		$('#searchBodyId').css('height', '');
+		$('#searchBodyId').css('width', '370px');
 		$('#esSearchResultTbody').addClass('noshow');
 	  $('#esSearchResultTbody').hide();
     $('#BodyId').removeClass('noshow');
