@@ -137,8 +137,15 @@ input {
 .noshow {opacity: 0;}
 </style>
 <body>
-<div class="container dragLayer">
+
+  
+  <div class="container dragLayer">
 <!-- left layer -->
+<!-- <div class="w3-bar w3-border w3-light-grey dragLayer" >
+  <div class="w3-bar-item " style="padding: 0px 0px"></div>
+  <div class="w3-bar-item " style="padding: 0px 0px"></div>
+  <div class="w3-bar-item w3-right noneDragLayer" id="closeBtn" style="padding: 0px 0px">close</div>
+</div> -->
   <div class="leftbox" style="">
     <nav id='navLayer'>
       <a href="javascript:;" id="search" class="active noneDragLayer" style="background: #8059D7;"><i class="fa fa-search">&nbsp;검색&nbsp;</i></a>
@@ -149,14 +156,10 @@ input {
 <!-- right layer -->
   <div class="rightbox">
 		<div id="BodyId" class="" style="width: 370px;">
-				
 		</div>
 		<div id="searchBodyId" class="search" style="width: 370px;">
 			<p style="padding: 10px 0px;">
-				<!-- <button class="btn" style="font-size: 14px;">Search</button><input type="text" id="searchInput" placeholder="Enter Search Keyword" class="noneDragLayer"></input> -->
 				<span style="font-size: 18px;"> Search : </span><input type="text" id="searchInput" placeholder="Enter Search Keyword" class="noneDragLayer"></input>
-        
-        <!-- <a id="closeBtn" class="w3-right noneDragLayer" style="color:#3FB6A8;"><i class="fa fa-window-close" style="font-size:24px"></i></a> -->
         <a id="settings" class="active search w3-right noneDragLayer" style="color:#3FB6A8;"><i class="fa fa-gear fa-spin" style="font-size:24px"></i></a>
 			</p>
 			<div id="esSearchResultTbody" style="display:none; overflow-x:hidden; overflow-y:scroll; width:400; height:430px;" class="noneDragLayer"></div>
@@ -221,6 +224,7 @@ ipcRenderer.on('userUUidData', (event, data) => {
 });
 
 fn_load_profile();
+
 
 $('nav a').click(function(e) {
   e.preventDefault();
@@ -305,9 +309,9 @@ $('#settings').click(function(e) {
 	fn_load_profile();
 });
 
-$('#closeBtn').click(function(e) {
-    console.log("close btn");
-});
+
+
+
 function layerChange(){
 	ipcRenderer.send('resize-me-please', "viewLayer");
   $('.container').height('500px');
@@ -358,6 +362,7 @@ $("#searchInput").keydown(function(key) {
               innerData += '<span style="font-size: 14px;">검색결과가 없습니다.</span><br>';
               innerData += '</div>';
             } else {
+              var cusorVal = "";
               var jsontext = esResultObj.message;
               var contact = JSON.parse(jsontext);
               if( contact.length > 0 ){
@@ -375,11 +380,13 @@ $("#searchInput").keydown(function(key) {
                     innerData += '<a href="javascript:;" class="btn" onclick="userCalling(this);" data-value="'+contact[i].owner_uuid+'" data-ownerid="'+contact[i].owner_uuid+'">';
                     innerData += '<i class="fa fa-phone" aria-hidden="true" style="color:#8059D7; padding: 5px 0px;"></i></a>';
                     innerData += '<br>';
+                    cusorVal = "cursor: default";
 									}else{
                     fileSharing = "개인";
                     innerData += '<span style="font-size: 14px;">'+'['+fileSharing+'] </span>';
+                    cusorVal = "cursor: pointer";
                   }
-                  innerData += '<span class="openFileTag" data-value="'+contact[i].filepath+'">'+contact[i].filepath;
+                  innerData += '<span class="openFileTag" onclick="folderOpen(this);" style="'+cusorVal+'" data-gubun="'+contact[i].fileSharing+'" data-value="'+contact[i].filepath+'">'+contact[i].filepath;
             		  innerData += '</span>';
             		  innerData += '<input type="hidden" name="owner_uuid" id="owner_uuid" value="'+contact[i].owner_uuid+'"></input>';
                   innerData += '</div>';
@@ -427,7 +434,8 @@ function dirSettingsSave(){
 	  ipcRenderer.send('save-dir-path', tempDirAddress, "true", "PV", "" , $("#userId").val());
   }else{
 		ipcRenderer.send('save-dir-path', tempDirAddress, "false", "PV", "", $("#userId").val());
-	}
+  }
+  fn_alert("설정이 저장되었습니다.");
 }
 
 // public 
@@ -475,6 +483,8 @@ function public_dirSettingsSave(){
   }else{
     ipcRenderer.send('save-dir-path', tempDirAddress, "false", "PR", $("#groupNm").val(), $("#userId").val());
   }
+
+  fn_alert("설정이 저장되었습니다.");
 }
 
 function setProfile(){
@@ -630,6 +640,18 @@ function userCalling(val){
     }
   });
   $('.dialog-widget').addClass('noneDragLayer');
+}
+
+function folderOpen(val){
+  var fileDir = val.getAttribute("data-value");
+  var gubun = val.getAttribute("data-gubun");
+  
+  if( gubun == 'PV' || gubun == 'pv'){
+    const {ipcRenderer} = require('electron');
+    ipcRenderer.send('openFileDir', fileDir);
+  }
+
+
 }
 
 </script>

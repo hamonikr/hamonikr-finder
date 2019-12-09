@@ -9,7 +9,44 @@ const axios = require('axios');
 const FormData = require('form-data');
 const concat = require("concat-stream");
 
+
+var extend          = require('node.extend'),
+	globule         = require('globule'),
+	path            = require('path'),
+  EventEmitter    = require('events').EventEmitter;
+  
+
+const delay = require('delay');
+const sleep = delay => new Promise(resolve => { setTimeout(resolve, delay) }, delay)
+const moment = require("moment");
+
+var https = require('https');
+var http = require('http');
+
+https.globalAgent.maxSockets = 50000;
+http.globalAgent.maxSockets = 50000;
+let chkLimitCnt = 0;
 var searchPathAry = new Array();
+
+
+
+let startTime;
+let endTime;
+let second = 1000 * 60;
+let fmt1 = 'YYYY.MM.DD HH:mm:ss.SSSSSSS';
+let  nowMoment = moment(new Date()).format(fmt1); //Date 객체를 파라미터로 넣기
+
+function fileIndexingDel(){
+	var osType = require('os');
+  var fileDir  = osType.homedir() + '/.config/hamonikr_finder/public_indexingFile';
+	 if (fs.existsSync(fileDir)) {
+		fs.unlinkSync(fileDir);
+	}
+  startTime = nowMoment;
+}
+
+
+ searchPathAry = new Array();
 function getSearchPath(){
 
 	var osType = require('os');
@@ -89,6 +126,7 @@ const main = async (argUserUuid, argGroupIndex, argUserNm) => {
   
   
   var batchFiles  = [];
+  var batchFilesIndexing  = [];
   var batchTimer  = null;
 
   const watcher = chokidar.watch(FILE_FOLDER, {
@@ -184,10 +222,33 @@ const main = async (argUserUuid, argGroupIndex, argUserNm) => {
   function watcherBatch() {
     watcherChange('change', batchFiles);
     batchFiles = [];
+    batchFilesIndexing = [];
   }
 
   function watcherChange(event, path) {
     processArray(path);
+
+    var osType = require('os');
+    var fileDir  = osType.homedir() + '/.config/hamonikr_finder/public_indexingFile';			
+    var nowMoment = moment(new Date()).format(fmt1); 
+    var fileArg = "";
+
+    // endTime = nowMoment;
+    batchFilesIndexing.forEach(async (item, itemcnt) => {
+      console.log("item-------------" + item +"==========="+ batchFiles[itemcnt]);
+      fileArg += "시간 : [" + item +"], 파일수 :" + (itemcnt+1) +",   file name is : "+ batchFiles[itemcnt] +"\n";
+      
+      console.log("batchFilesIndexing.length==" + batchFilesIndexing.length +"=========+"+ (itemcnt+1));
+      if( batchFilesIndexing.length == (itemcnt+1) ){
+        var lastVal = "start time : " + batchFilesIndexing[0] +"\nlast time : " + batchFilesIndexing[batchFilesIndexing.length-1];
+
+        fs.appendFile(fileDir, fileArg + lastVal, (err) => {
+          if(err) { console.log("err====" + err);}
+        });
+      }  
+
+    });
+
 	}
 
   const asyncQuery = (query) => {
@@ -219,10 +280,15 @@ const main = async (argUserUuid, argGroupIndex, argUserNm) => {
   });
 
   watcher.on('add', async path => {
-     console.log("path========== " + path);
+
+    var nowMoment = moment(new Date()).format(fmt1); //Date 객체를 파라미터로 넣기
+
     batchFiles.push(path);
+    batchFilesIndexing.push(nowMoment);
     clearTimeout(batchTimer);
     batchTimer = setTimeout(watcherBatch);
+
+
   });
 
   watcher.on('addDir', function(path) {})
@@ -292,10 +358,8 @@ const main = async (argUserUuid, argGroupIndex, argUserNm) => {
 
 module.exports = {
 	start: function(userUuid, groupIndex, userNm){
-	  getSearchPath();
- 	main(userUuid, groupIndex, userNm);
-//	 maintest(arg);
+    fileIndexingDel();
+    getSearchPath();
+ 	  main(userUuid, groupIndex, userNm);
 	}
 };
-
-

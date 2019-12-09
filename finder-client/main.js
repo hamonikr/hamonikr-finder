@@ -187,6 +187,12 @@ app.on('ready', () => {
 	createTray();
 	setTimeout(createWindow, 500)
 	
+	globalShortcut.register('f5', function() {
+		console.log('f5 is pressed')
+		mainWindow.reload();
+		mainWindow.setSize(570,80);
+	})
+
 	var osType = require('os');
 	var dirpath = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
 	var userUuidStr = "";
@@ -209,10 +215,15 @@ app.on('ready', () => {
 					if(!error){
 						console.log("client ready --------------ret body==="+ body);
 					}else{
-						consoel.log("client ready --------------err="+ error);
+						console.log("client ready --------------err="+ error);
 					}
 				}
 			);
+		}else{
+
+			initFileAsync(dir);
+			
+			
 		}
 	}catch(e){
 		if(e.code == 'ENOENT'){
@@ -266,8 +277,10 @@ ipcMain.on('resize-me-please', (event, arg) => {
 	if(arg == "initLayer"){
 		mainWindow.setResizable(true);
 		mainWindow.setSize(550,80);
+		console.log("init layer size 550:80");
 	}else if( arg == "viewLayer"){
-  		mainWindow.setSize(561, 580);
+		  mainWindow.setSize(570, 580);
+		  console.log("viewLayer size : 570:580");
 		 // esRequest();
 	}else{
 		createWindow();
@@ -276,10 +289,10 @@ ipcMain.on('resize-me-please', (event, arg) => {
 })
 
 
-ipcMain.on('openFile', (event, path) => {
+ipcMain.on('openFileDir', (event, path) => {
   console.log("main.js=-====" + path);
-//  shell.showItemInFolder(path);
-  shell.openItem(path);
+ shell.showItemInFolder(path);
+//   shell.openItem(path);
 
 });
 
@@ -336,6 +349,26 @@ ipcMain.on('save-dir-path', (event, arg, fileIndexingGubun, gubun, gruopNm, user
 //	var makeWatchFile = await create_settingFile(arg);
 //}
 
+const initFileAsync = async(dir) => {
+	
+	var chkFile = FnChk_settingsFile();
+	console.log("chkFile==="+ chkFile);
+	if( chkFile == false ){
+		var makeDirpAsync = await mkDirpAsync(dir);
+		var makeFileTmp = await userInfoWriteFile();
+	}
+}
+
+// var osType = require('os');
+// 			var dirpath = osType.homedir() + '/.config/hamonikr_finder/userinfo_config';
+// 				  fs.readFile(dirpath, (err, data) => {
+// 				if (err)  { reject("false")}
+// 				else {
+// 						  var os = require("os");
+// 						  var text = data.toString().split(os.EOL);
+// 				  resolve(text[0]);
+// 				}
+// 			  });
 const makeRecursiveFileAsync = async(dir, arg, gubun, groupNm, userNm) => {
    try{
 			// 폴더 및 파일 유무 체크
